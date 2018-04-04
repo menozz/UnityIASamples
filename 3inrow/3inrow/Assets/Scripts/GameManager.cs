@@ -11,10 +11,10 @@ public class GameManager : MonoBehaviour
 	public bool showNewScrorec;
 
 	// переменная управляет возможностью нажимать или нет по шарикам
-	public bool activeGame;
+	public bool activeGame = true;
 
 	// переменная, которая устанавливается в true, чтобы при запуске новой игры запускался режим обучения
-	public bool firstGame=true;
+	public bool firstGame=false;
 
 	// координаты, необходимые чтобы основной игровой скрипт GameGenField мог понять, какой шарик выбран как обучающий
 	public float fX;

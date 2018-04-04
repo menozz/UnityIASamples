@@ -272,7 +272,10 @@ public class GameGenField : MonoBehaviour
     // создание верхнего (шестого) ряда шариков, которые падают вниз,если какой либо из шариков сгорает
     void respawnNewCircles()
     {
-        float x = 0.5f, y = 2.8f;
+        float x = -4.2f, y = 6f;
+    //public float startX = -4.2f;
+    //public float startY = -0.2f;
+        //float x = this.startX, y = this.startY;
 
         for (int i = 0; i < 5; i++)
         {
