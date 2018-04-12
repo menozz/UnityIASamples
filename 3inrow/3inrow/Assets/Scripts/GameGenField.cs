@@ -1,18 +1,28 @@
+using System;
+
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 using UnityEngine.UI;
 
 using UnityEngine.SceneManagement;
 
+using Random = UnityEngine.Random;
+
 public class GameGenField : MonoBehaviour
 {
+    
     public GameObject blue;
     public GameObject yellow;
     public GameObject green;
     public GameObject red;
 
     public float startX = 0f;
-    public float startY = 0f;
+    public const int ballCount = 8;
+    private readonly float startY = ballCount + 1f;
+
+    //private float startY = ballCount + 1f;
 
     float nextUsage;
     public float firstDelay = 1.8f;
@@ -39,9 +49,12 @@ public class GameGenField : MonoBehaviour
 
     void Update()
     {
+        //transform.position.x = (Input.mousePosition.x - halfW) / halfW;
+        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Debug.Log(worldPoint);
+
         if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         {
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
 
             if (hit.collider != null)
@@ -50,7 +63,7 @@ public class GameGenField : MonoBehaviour
             }
         }
     }
- 
+
     void gameNormal(RaycastHit2D hit)
     {
         if (hit.collider != null)
@@ -90,15 +103,17 @@ public class GameGenField : MonoBehaviour
             deletedObj.transform.GetChild(i).GetComponent<circle_controller>().destroyed();
         }
         yield return new WaitForSeconds(delay);
-        deletedObj.transform.position = new Vector2(-100, -100);
-        respawnNewCircles();
+        //  deletedObj.transform.position = new Vector2(-100, -100);
         addPoints((deletedObj.transform.childCount) * 10);
         calcShags((deletedObj.transform.childCount - 1));
+        var lst = new List<Vector2>();
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
+            lst.Add(deletedObj.transform.GetChild(i).gameObject.transform.position);
             Destroy(deletedObj.transform.GetChild(i).gameObject);
         }
-        deletedObj.transform.position = new Vector2(-20, -20);
+        respawnNewCircles(lst);
+        //  deletedObj.transform.position = new Vector2(-20, -20);
     }
 
     IEnumerator deleteOne(RaycastHit2D hit)
@@ -107,15 +122,16 @@ public class GameGenField : MonoBehaviour
         hit.transform.parent = deletedObj.transform;
         hit.transform.GetComponent<circle_controller>().destroyed();
         yield return new WaitForSeconds(delay);
-        deletedObj.transform.position = new Vector2(-100, -100);
-        respawnNewCircles();
+        //deletedObj.transform.position = new Vector2(-100, -100);
         addPoints(10);
         calcShags(-1);
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
             Destroy(deletedObj.transform.GetChild(i).gameObject);
         }
-        deletedObj.transform.position = new Vector2(-20, -20);
+        respawnNewCircles(hit.transform.position);
+
+        // deletedObj.transform.position = new Vector2(-20, -20);
     }
 
     void addPoints(int addP)
@@ -136,18 +152,29 @@ public class GameGenField : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
-    void respawnNewCircles()
+    void respawnNewCircles(IEnumerable<Vector2> hits)
     {
-        float x = 0f, y = 4f;
-        for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
-        {
-                Vector2 worldPoint = new Vector2(x + i, y + j);
-            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-            if (hit.collider == null)
+        float x = 0f, y = this.startY + 1;
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
             {
-                setRNDCircle(x + i, y + j);
+                Vector2 worldPoint = new Vector2(x + i, y + j);
+                RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+                if (hit.collider == null)
+                {
+                    setRNDCircle(x + i, y + j);
+                }
             }
+    }
+
+    void respawnNewCircles(Vector2 hitObj)
+    {
+        float x = hitObj.x, y = this.startY;
+        Vector2 worldPoint = new Vector2(x, y);
+        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        if (hit.collider == null)
+        {
+            setRNDCircle(x, y);
         }
     }
 
@@ -203,7 +230,7 @@ public class GameGenField : MonoBehaviour
         }
     }
 
-    private static RaycastHit2D RayCast(RaycastHit2D hit, Vector2 direction)
+    private RaycastHit2D RayCast(RaycastHit2D hit, Vector2 direction)
     {
         hit.collider.enabled = false;
         var hitNew = Physics2D.Raycast(hit.transform.position, direction);
@@ -213,9 +240,9 @@ public class GameGenField : MonoBehaviour
 
     void initGameField()
     {
-        for (int y = 0; y < 5; y++)
+        for (int y = 0; y < ballCount; y++)
         {
-            for (int x = 0; x < 5; x++)
+            for (int x = 0; x < ballCount; x++)
             {
                 setRNDCircle(startX + x, startY + y);
             }
@@ -225,20 +252,20 @@ public class GameGenField : MonoBehaviour
     void setRNDCircle(float x, float y)
     {
         int rndN = Random.Range(1, 5);
-
+        var vector = new Vector2(x, y);
         switch (rndN)
         {
             case 1:
-                Instantiate(blue, new Vector2(x, y), Quaternion.identity);
+                Instantiate(blue, vector, Quaternion.identity);
                 break;
             case 2:
-                Instantiate(yellow, new Vector2(x, y), Quaternion.identity);
+                Instantiate(yellow, vector, Quaternion.identity);
                 break;
             case 3:
-                Instantiate(green, new Vector2(x, y), Quaternion.identity);
+                Instantiate(green, vector, Quaternion.identity);
                 break;
             case 4:
-                Instantiate(red, new Vector2(x, y), Quaternion.identity);
+                Instantiate(red, vector, Quaternion.identity);
                 break;
         }
     }
