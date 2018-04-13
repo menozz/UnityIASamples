@@ -51,7 +51,7 @@ public class GameGenField : MonoBehaviour
     {
         //transform.position.x = (Input.mousePosition.x - halfW) / halfW;
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Debug.Log(worldPoint);
+        //Debug.Log(worldPoint);
 
         if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         {
