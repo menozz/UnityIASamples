@@ -154,17 +154,29 @@ public class GameGenField : MonoBehaviour
 
     void respawnNewCircles(IEnumerable<Vector2> hits)
     {
-        float x = 0f, y = this.startY + 1;
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
+
+        foreach (var vector2 in hits)
+        {
+            float x = vector2.x, y = this.startY + vector2.y;
+            Vector2 worldPoint = new Vector2(x, y);
+            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+            if (hit.collider == null)
             {
-                Vector2 worldPoint = new Vector2(x + i, y + j);
-                RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-                if (hit.collider == null)
-                {
-                    setRNDCircle(x + i, y + j);
-                }
+                setRNDCircle(x, y);
             }
+
+        }
+        //float x = 0f, y = this.startY + 1;
+        //for (int i = 0; i < 8; i++)
+        //    for (int j = 0; j < 8; j++)
+        //    {
+        //        Vector2 worldPoint = new Vector2(x + i, y + j);
+        //        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        //        if (hit.collider == null)
+        //        {
+        //            setRNDCircle(x + i, y + j);
+        //        }
+        //    }
     }
 
     void respawnNewCircles(Vector2 hitObj)

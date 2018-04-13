@@ -18,7 +18,7 @@ public class circle_controller : MonoBehaviour
         //_rigidbody.AddForce(new Vector2(0, -0.05f));
         //_rigidbody.velocity = Vector2.zero;
 
-        GetComponent<Rigidbody2D>().velocity = Vector2.down * 1f;
+        //GetComponent<Rigidbody2D>().velocity = Vector2.down * 1f;
         //GetComponent<Rigidbody2D>().AddForce(Vector2.down * 0.11f, ForceMode2D.Force);
         // GetComponent<Rigidbody>().velocity = Vector3.down * jumpVelocity;
 
