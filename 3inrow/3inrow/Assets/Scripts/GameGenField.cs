@@ -1,18 +1,13 @@
-using System;
-
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.UI;
-
 using UnityEngine.SceneManagement;
-
 using Random = UnityEngine.Random;
 
 public class GameGenField : MonoBehaviour
 {
-    
+
     public GameObject blue;
     public GameObject yellow;
     public GameObject green;
@@ -22,6 +17,8 @@ public class GameGenField : MonoBehaviour
     public const int ballCount = 8;
     private readonly float startY = ballCount + startHeight;
     private const float startHeight = 1f;
+
+    private const float Precision = 0.0001f;
 
     //private float startY = ballCount + 1f;
 
@@ -35,6 +32,8 @@ public class GameGenField : MonoBehaviour
     public int shags = 15;
 
     GameObject goalLabel, shagLabel;
+
+    List<Vector2> lst = new List<Vector2>();
 
     void Start()
     {
@@ -63,7 +62,25 @@ public class GameGenField : MonoBehaviour
                 gameNormal(hit);
             }
         }
+
+        this.DoSomethingInAWhile();
+
     }
+    private void DoSomethingInAWhile()
+    {
+        Vector2 prev = Vector2.zero;
+        foreach (var vector21 in this.lst)
+        {
+            if (prev == Vector2.zero)
+            {
+                prev = vector21;
+            }
+            Debug.DrawLine(prev, vector21);
+            //Debug.DrawLine(Vector2.zero, vector21);
+        }
+        //    Debug.DrawLine(Vector2.up, vector2);
+    }
+
 
     void gameNormal(RaycastHit2D hit)
     {
@@ -98,6 +115,7 @@ public class GameGenField : MonoBehaviour
 
     IEnumerator deleteAll(RaycastHit2D hit)
     {
+        this.lst = new List<Vector2>();
         hit.transform.parent = deletedObj.transform;
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
@@ -107,25 +125,14 @@ public class GameGenField : MonoBehaviour
         //  deletedObj.transform.position = new Vector2(-100, -100);
         addPoints((deletedObj.transform.childCount) * 10);
         calcShags((deletedObj.transform.childCount - 1));
-        var lst = new List<Vector2>();
+
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
             lst.Add(deletedObj.transform.GetChild(i).gameObject.transform.position);
             Destroy(deletedObj.transform.GetChild(i).gameObject);
         }
-        lst.Sort(SortByY);
-        lst.Sort(SortByX);
         respawnNewCircles(lst);
         //  deletedObj.transform.position = new Vector2(-20, -20);
-    }
-
-    static int SortByY(Vector2 p1, Vector2 p2)
-    {
-        return p1.y.CompareTo(p2.y);
-    }
-    static int SortByX(Vector2 p1, Vector2 p2)
-    {
-        return p1.x.CompareTo(p2.x);
     }
 
     IEnumerator deleteOne(RaycastHit2D hit)
@@ -166,34 +173,22 @@ public class GameGenField : MonoBehaviour
 
     void respawnNewCircles(List<Vector2> hits)
     {
-        //if (hits.Count > 1)
-        //{
-        //    hits
-        //}
-     //   bool first = true;
-        float y = startY;
-        var prevY = Vector2.zero;
-        foreach (var vector2 in hits)
+        float y = this.startY;
+        Vector2 prev = hits[0];
+        for (int i = 0; i < hits.Count; i++)
         {
+            var vector2 = hits[i];
             float x = vector2.x;
-            if (Vector2.up - vector2.normalized) > 0)
+            if (i != 0)
             {
-                y += 1f;
+                var newVector = vector2 - prev;
+                newVector.Normalize();
+                if (!(Mathf.Abs(Mathf.Round(newVector.y)) < Precision))
+                {
+                    y += startHeight;
+                }
             }
 
-            prevY = vector2;
-
-            //            prev = vector2.y;
-            //if (first)
-            //{
-                //y += vector2.y;
-            //}
-            //else
-            //{
-               // y = y + prevY;
-               //prevY = vector2.y - prevY;
-            //}
-            //  first = false;
             Vector2 worldPoint = new Vector2(x, y);
             RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
             if (hit.collider == null)
@@ -214,6 +209,7 @@ public class GameGenField : MonoBehaviour
         //        }
         //    }
     }
+
 
     void respawnNewCircles(Vector2 hitObj)
     {
