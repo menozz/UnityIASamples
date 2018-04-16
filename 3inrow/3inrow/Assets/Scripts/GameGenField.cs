@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine.UI;
 
 using UnityEngine.SceneManagement;
@@ -20,7 +20,8 @@ public class GameGenField : MonoBehaviour
 
     public float startX = 0f;
     public const int ballCount = 8;
-    private readonly float startY = ballCount + 1f;
+    private readonly float startY = ballCount + startHeight;
+    private const float startHeight = 1f;
 
     //private float startY = ballCount + 1f;
 
@@ -51,7 +52,7 @@ public class GameGenField : MonoBehaviour
     {
         //transform.position.x = (Input.mousePosition.x - halfW) / halfW;
         Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //Debug.Log(worldPoint);
+        Debug.Log(worldPoint);
 
         if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         {
@@ -112,8 +113,19 @@ public class GameGenField : MonoBehaviour
             lst.Add(deletedObj.transform.GetChild(i).gameObject.transform.position);
             Destroy(deletedObj.transform.GetChild(i).gameObject);
         }
+        lst.Sort(SortByY);
+        lst.Sort(SortByX);
         respawnNewCircles(lst);
         //  deletedObj.transform.position = new Vector2(-20, -20);
+    }
+
+    static int SortByY(Vector2 p1, Vector2 p2)
+    {
+        return p1.y.CompareTo(p2.y);
+    }
+    static int SortByX(Vector2 p1, Vector2 p2)
+    {
+        return p1.x.CompareTo(p2.x);
     }
 
     IEnumerator deleteOne(RaycastHit2D hit)
@@ -152,12 +164,36 @@ public class GameGenField : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
-    void respawnNewCircles(IEnumerable<Vector2> hits)
+    void respawnNewCircles(List<Vector2> hits)
     {
-
+        //if (hits.Count > 1)
+        //{
+        //    hits
+        //}
+     //   bool first = true;
+        float y = startY;
+        var prevY = Vector2.zero;
         foreach (var vector2 in hits)
         {
-            float x = vector2.x, y = this.startY + vector2.y;
+            float x = vector2.x;
+            if (Vector2.up - vector2.normalized) > 0)
+            {
+                y += 1f;
+            }
+
+            prevY = vector2;
+
+            //            prev = vector2.y;
+            //if (first)
+            //{
+                //y += vector2.y;
+            //}
+            //else
+            //{
+               // y = y + prevY;
+               //prevY = vector2.y - prevY;
+            //}
+            //  first = false;
             Vector2 worldPoint = new Vector2(x, y);
             RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
             if (hit.collider == null)
