@@ -3,8 +3,13 @@ guid: 7817d1a78773bcb4c9fb397fb7200f3a
 timeCreated: 1433576243
 licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - blue: {instanceID: 0}
+  - yellow: {instanceID: 0}
+  - green: {instanceID: 0}
+  - red: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

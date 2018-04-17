@@ -419,7 +419,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 2
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -540,7 +540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7817d1a78773bcb4c9fb397fb7200f3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blue: {fileID: 124380, guid: 480df52b448f3d94f96bd0421eaad8a7, type: 2}
+  blue: {fileID: 1166513756283354, guid: a225093c0bb5ce642962ed3d841c2313, type: 2}
   yellow: {fileID: 142484, guid: 71587d086656f564984080a32bd0f7c5, type: 2}
   green: {fileID: 153326, guid: e1530cea40acee24b86d63271dacff2d, type: 2}
   red: {fileID: 158296, guid: 6557f78ff8bd0224fb4be38573a37786, type: 2}

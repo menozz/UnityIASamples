@@ -119,7 +119,7 @@ public class GameGenField : MonoBehaviour
         hit.transform.parent = deletedObj.transform;
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
-            deletedObj.transform.GetChild(i).GetComponent<circle_controller>().destroyed();
+           // deletedObj.transform.GetChild(i).GetComponent<circle_controller>().destroyed();
         }
         yield return new WaitForSeconds(delay);
         //  deletedObj.transform.position = new Vector2(-100, -100);
@@ -139,7 +139,7 @@ public class GameGenField : MonoBehaviour
     {
         deletedObj.transform.DetachChildren();
         hit.transform.parent = deletedObj.transform;
-        hit.transform.GetComponent<circle_controller>().destroyed();
+      //  hit.transform.GetComponent<circle_controller>().destroyed();
         yield return new WaitForSeconds(delay);
         //deletedObj.transform.position = new Vector2(-100, -100);
         addPoints(10);
