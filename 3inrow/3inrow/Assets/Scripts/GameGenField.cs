@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class GameGenField : MonoBehaviour
 {
-
     public GameObject blue;
     public GameObject yellow;
     public GameObject green;
@@ -17,10 +16,7 @@ public class GameGenField : MonoBehaviour
     public const int ballCount = 8;
     private readonly float startY = ballCount + startHeight;
     private const float startHeight = 1f;
-
     private const float Precision = 0.0001f;
-
-    //private float startY = ballCount + 1f;
 
     float nextUsage;
     public float firstDelay = 1.8f;
@@ -47,39 +43,72 @@ public class GameGenField : MonoBehaviour
         shagLabel.GetComponent<Text>().text = shags + "";
     }
 
+    void FixedUpdate()
+    {
+        if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
+        {
+            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+            if (hit.collider != null && hit.transform.childCount > 0 && hit.transform.GetChild(0).tag == "unit")
+            {
+                var children = hit.transform.GetChild(0);
+                //   Debug.Log("animation");
+                // var t = hit.collider.gameObject;
+                var u = children.GetComponent<circle_controller>();
+                //  var h = (circle_controller)FindObjectOfType(typeof(circle_controller));
+                if (u != null)
+                {
+                    u.MouseMove(true);
+
+                }
+                //    hit.collider.gameObject.transform.GetComponent<circle_controller>().MouseMove(true);
+            }
+        }
+    }
+
     void Update()
     {
         //transform.position.x = (Input.mousePosition.x - halfW) / halfW;
-        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Debug.Log(worldPoint);
+        //Debug.Log(worldPoint);
 
         if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         {
+            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-
             if (hit.collider != null)
             {
                 gameNormal(hit);
             }
         }
+      
 
-        this.DoSomethingInAWhile();
+        //if (Input.M(0) && Time.time > nextUsage)
+        //{
+        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+
+        //    if (hit.collider != null)
+        //    {
+        //        gameNormal(hit);
+        //    }
+        //}
+
+        //   this.DoSomethingInAWhile();
 
     }
-    private void DoSomethingInAWhile()
-    {
-        Vector2 prev = Vector2.zero;
-        foreach (var vector21 in this.lst)
-        {
-            if (prev == Vector2.zero)
-            {
-                prev = vector21;
-            }
-            Debug.DrawLine(prev, vector21);
-            //Debug.DrawLine(Vector2.zero, vector21);
-        }
-        //    Debug.DrawLine(Vector2.up, vector2);
-    }
+    //private void DoSomethingInAWhile()
+    //{
+    //    Vector2 prev = Vector2.zero;
+    //    foreach (var vector21 in this.lst)
+    //    {
+    //        if (prev == Vector2.zero)
+    //        {
+    //            prev = vector21;
+    //        }
+    //        Debug.DrawLine(prev, vector21);
+    //        //Debug.DrawLine(Vector2.zero, vector21);
+    //    }
+    //    //    Debug.DrawLine(Vector2.up, vector2);
+    //}
 
 
     void gameNormal(RaycastHit2D hit)

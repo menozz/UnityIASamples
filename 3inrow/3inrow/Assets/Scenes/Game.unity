@@ -540,10 +540,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7817d1a78773bcb4c9fb397fb7200f3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blue: {fileID: 1166513756283354, guid: a225093c0bb5ce642962ed3d841c2313, type: 2}
-  yellow: {fileID: 142484, guid: 71587d086656f564984080a32bd0f7c5, type: 2}
-  green: {fileID: 153326, guid: e1530cea40acee24b86d63271dacff2d, type: 2}
-  red: {fileID: 158296, guid: 6557f78ff8bd0224fb4be38573a37786, type: 2}
+  blue: {fileID: 1745360431812302, guid: fca3018fa8cf267468d20e8d701a4b7f, type: 2}
+  yellow: {fileID: 1951561208522480, guid: a73b3d9a81b514843aa0538942910493, type: 2}
+  green: {fileID: 1868112617338692, guid: 8b56c7018303f1e459ff55bc8ae5abad, type: 2}
+  red: {fileID: 1908817683155434, guid: 8773dd39300cc484f9ce123dbb3b0bcf, type: 2}
   startX: 0
   firstDelay: 1.8
   delay: 0.5
