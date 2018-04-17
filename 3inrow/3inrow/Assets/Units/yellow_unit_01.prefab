@@ -21,6 +21,8 @@ GameObject:
   - component: {fileID: 4657389618037440}
   - component: {fileID: 212499624966608338}
   - component: {fileID: 95994209617144538}
+  - component: {fileID: 65964543185523862}
+  - component: {fileID: 114864164441623474}
   m_Layer: 0
   m_Name: yellow_unit_01
   m_TagString: unit
@@ -117,6 +119,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4, y: 4.95}
   m_EdgeRadius: 0
+--- !u!65 &65964543185523862
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1303115600803786}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.9999998, y: 4.95, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!95 &95994209617144538
 Animator:
   serializedVersion: 3
@@ -134,6 +148,25 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114864164441623474
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1303115600803786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf9e6cdf705faf841808d0f22f9648b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  transitionDuration: 0
+  durationToChange: 0
+  durationThreshold: 200
+  idleString: units_idle_01
+  mousemoveString: units_moved_01
+  selectString: units_select_01
+  Inverted: unit_mouse_inverted_01
 --- !u!212 &212499624966608338
 SpriteRenderer:
   m_ObjectHideFlags: 1

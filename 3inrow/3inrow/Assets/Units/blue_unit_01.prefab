@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 212134573366071594}
   - component: {fileID: 95094760539866468}
   - component: {fileID: 114717419061911056}
+  - component: {fileID: 65522729730553108}
   m_Layer: 0
   m_Name: blue_unit_01
   m_TagString: unit
@@ -118,6 +119,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4, y: 4.95}
   m_EdgeRadius: 0
+--- !u!65 &65522729730553108
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1300944504314150}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.9999998, y: 4.95, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!95 &95094760539866468
 Animator:
   serializedVersion: 3
@@ -146,6 +159,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf9e6cdf705faf841808d0f22f9648b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  transitionDuration: 0
+  durationToChange: 0
+  durationThreshold: 200
+  idleString: units_idle_01
+  mousemoveString: units_moved_01
+  selectString: units_select_01
+  Inverted: unit_mouse_inverted_01
 --- !u!212 &212134573366071594
 SpriteRenderer:
   m_ObjectHideFlags: 1

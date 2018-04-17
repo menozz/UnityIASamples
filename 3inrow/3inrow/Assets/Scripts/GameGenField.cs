@@ -45,25 +45,7 @@ public class GameGenField : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
-        {
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-            if (hit.collider != null && hit.transform.childCount > 0 && hit.transform.GetChild(0).tag == "unit")
-            {
-                var children = hit.transform.GetChild(0);
-                //   Debug.Log("animation");
-                // var t = hit.collider.gameObject;
-                var u = children.GetComponent<circle_controller>();
-                //  var h = (circle_controller)FindObjectOfType(typeof(circle_controller));
-                if (u != null)
-                {
-                    u.MouseMove(true);
-
-                }
-                //    hit.collider.gameObject.transform.GetComponent<circle_controller>().MouseMove(true);
-            }
-        }
+       
     }
 
     void Update()
@@ -80,7 +62,27 @@ public class GameGenField : MonoBehaviour
                 gameNormal(hit);
             }
         }
-      
+
+//        if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
+        //{
+        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        //    if (hit.collider != null && hit.transform.childCount > 0 && hit.transform.GetChild(0).tag == "unit")
+        //    {
+        //        var children = hit.transform.GetChild(0);
+        //        //   Debug.Log("animation");
+        //        // var t = hit.collider.gameObject;
+        //        var u = children.GetComponent<circle_controller>();
+        //        //  var h = (circle_controller)FindObjectOfType(typeof(circle_controller));
+        //        if (u != null)
+        //        {
+        //        //    u.MouseMove();
+
+        //        }
+        //        //    hit.collider.gameObject.transform.GetComponent<circle_controller>().MouseMove(true);
+        //    }
+        //}
+
 
         //if (Input.M(0) && Time.time > nextUsage)
         //{
