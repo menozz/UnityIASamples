@@ -53,10 +53,13 @@ public class circle_controller : MonoBehaviour
         if (!mouseOn && !busy)
         {
             StartCoroutine(IdlePlay(idleString));
+           // IdlePlay(idleString);
         }
         if(mouseOn && !busy)
         {
             StartCoroutine(IdlePlay(Inverted));
+            //IdlePlay(Inverted);
+         //   StartCoroutine(IdlePlay(idleString));
             mouseOn = false;
         }
         //if (Player.S.isGrounded)
@@ -94,7 +97,7 @@ public class circle_controller : MonoBehaviour
     {
         busy = true;
         animator.Play(name);
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.0f);
         busy = false;
 
     }

@@ -11,6 +11,8 @@ public class GameGenField : MonoBehaviour
     public GameObject yellow;
     public GameObject green;
     public GameObject red;
+    public GameObject attack;
+    public GameObject defence;
 
     public float startX = 0f;
     public const int ballCount = 8;
@@ -326,7 +328,7 @@ public class GameGenField : MonoBehaviour
 
     void setRNDCircle(float x, float y)
     {
-        int rndN = Random.Range(1, 5);
+        int rndN = Random.Range(1, 7);
         var vector = new Vector2(x, y);
         switch (rndN)
         {
@@ -341,6 +343,12 @@ public class GameGenField : MonoBehaviour
                 break;
             case 4:
                 Instantiate(red, vector, Quaternion.identity);
+                break;
+            case 5:
+                Instantiate(attack, vector, Quaternion.identity);
+                break;
+            case 6:
+                Instantiate(defence, vector, Quaternion.identity);
                 break;
         }
     }

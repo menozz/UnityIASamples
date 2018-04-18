@@ -544,6 +544,8 @@ MonoBehaviour:
   yellow: {fileID: 1951561208522480, guid: a73b3d9a81b514843aa0538942910493, type: 2}
   green: {fileID: 1868112617338692, guid: 8b56c7018303f1e459ff55bc8ae5abad, type: 2}
   red: {fileID: 1908817683155434, guid: 8773dd39300cc484f9ce123dbb3b0bcf, type: 2}
+  attack: {fileID: 1695008470532018, guid: c55e8a23e20deaf43997bfca79934431, type: 2}
+  defence: {fileID: 1564026898795022, guid: 7a838b6591cb96e428b31220183fe785, type: 2}
   startX: 0
   firstDelay: 1.8
   delay: 0.5
