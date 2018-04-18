@@ -33,6 +33,7 @@ public class GameGenField : MonoBehaviour
 
     List<Vector2> lst = new List<Vector2>();
 
+
     void Start()
     {
         nextUsage = Time.time + firstDelay;
@@ -47,25 +48,45 @@ public class GameGenField : MonoBehaviour
 
     void FixedUpdate()
     {
-       
+
     }
 
     void Update()
     {
-        //transform.position.x = (Input.mousePosition.x - halfW) / halfW;
-        //Debug.Log(worldPoint);
+        //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
+        //{
+        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        //    if (hit.collider != null)
+        //    {
+        //        gameNormal(hit);
+        //    }
+        //}
 
-        if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
+        if (Input.GetMouseButtonDown(0))
         {
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-            if (hit.collider != null)
+            if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0)
             {
-                gameNormal(hit);
+                Vector2 srcworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                var srchit = Physics2D.Raycast(srcworldPoint, Vector2.zero);
+                if (srchit.collider != null)
+                {
+                    {
+                        Debug.Log("drag");
+                        //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
+                        //if (dsthit.collider != null)
+                        //{
+
+                        //}
+                    }
+                }
             }
+
+
         }
 
-//        if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
+        //if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
@@ -78,7 +99,7 @@ public class GameGenField : MonoBehaviour
         //        //  var h = (circle_controller)FindObjectOfType(typeof(circle_controller));
         //        if (u != null)
         //        {
-        //        //    u.MouseMove();
+        //            //    u.MouseMove();
 
         //        }
         //        //    hit.collider.gameObject.transform.GetComponent<circle_controller>().MouseMove(true);
@@ -152,7 +173,7 @@ public class GameGenField : MonoBehaviour
         hit.transform.parent = deletedObj.transform;
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
-           // deletedObj.transform.GetChild(i).GetComponent<circle_controller>().destroyed();
+            // deletedObj.transform.GetChild(i).GetComponent<circle_controller>().destroyed();
         }
         yield return new WaitForSeconds(delay);
         //  deletedObj.transform.position = new Vector2(-100, -100);
@@ -172,7 +193,7 @@ public class GameGenField : MonoBehaviour
     {
         deletedObj.transform.DetachChildren();
         hit.transform.parent = deletedObj.transform;
-      //  hit.transform.GetComponent<circle_controller>().destroyed();
+        //  hit.transform.GetComponent<circle_controller>().destroyed();
         yield return new WaitForSeconds(delay);
         //deletedObj.transform.position = new Vector2(-100, -100);
         addPoints(10);

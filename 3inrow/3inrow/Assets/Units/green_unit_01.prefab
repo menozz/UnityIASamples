@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 4524669570108116}
   - component: {fileID: 212697404342267356}
   - component: {fileID: 95397792153443198}
-  - component: {fileID: 114772077590839530}
   - component: {fileID: 65316884526855280}
+  - component: {fileID: 114790855614056186}
   m_Layer: 0
   m_Name: green_unit_01
   m_TagString: unit
@@ -148,7 +148,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114772077590839530
+--- !u!114 &114790855614056186
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -156,17 +156,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1256406651183852}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf9e6cdf705faf841808d0f22f9648b7, type: 3}
+  m_Script: {fileID: 11500000, guid: dd1b8ff39c9648643891c86c8985b0ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
-  transitionDuration: 0
-  durationToChange: 0
-  durationThreshold: 200
-  idleString: units_idle_01
-  mousemoveString: units_moved_01
-  selectString: units_select_01
-  Inverted: unit_mouse_inverted_01
+  OnIdleAnim: units_idle_01
+  OnMouseMoveAnim: units_moved_01
+  OnMouseDragAnim: units_select_01
+  OnSelectedAnim: unit_mouse_inverted_01
+  State: 0
 --- !u!212 &212697404342267356
 SpriteRenderer:
   m_ObjectHideFlags: 1
