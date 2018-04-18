@@ -33,7 +33,11 @@ public class UnitController : MonoBehaviour
 
     void OnMouseEnter()
     {
-        State = UnitState.Selected;
+        if (State != UnitState.Selected)
+        {
+            State = UnitState.Selected;
+        }
+
         //Debug.Log(string.Format("mouse enter {0}",_name));
     }
 
@@ -79,29 +83,30 @@ public class UnitController : MonoBehaviour
     {
         if (State == UnitState.MouseDown)
         {
-            if (Input.GetAxis("Mouse X") < 0)
+            if (Input.GetAxis("Mouse X") < -0.1)
             {
                 Debug.Log(string.Format("axis  x < 0 {0}", _name));
             }
 
-            if (Input.GetAxis("Mouse X") > 0)
+            if (Input.GetAxis("Mouse X") > 0.1)
             {
                 State = UnitState.MouseDrag;
                 Debug.Log(string.Format("right {0}", _name));
                 var obj = testRight(srcDrag);
                 if (obj != null)
                 {
-                    var controller = obj.GetComponent<UnitController>();
+                    var controller = obj.transform.GetChild(0).gameObject.GetComponent<UnitController>();
                     controller.MoveTo(srcDrag.transform.position);
+                    MoveTo(obj.transform.position);
                 }
             }
 
-            if (Input.GetAxis("Mouse Y") > 0)
+            if (Input.GetAxis("Mouse Y") > 0.1)
             {
                 Debug.Log(string.Format("axis y > 0 {0}", _name));
             }
 
-            if (Input.GetAxis("Mouse Y") < 0)
+            if (Input.GetAxis("Mouse Y") < -0.1)
             {
                 Debug.Log(string.Format("axis y < 0 {0}", _name));
             }
@@ -127,7 +132,7 @@ public class UnitController : MonoBehaviour
         var hitNew = RayCast(hit, hit.transform.right);
         //for (int i = 0; i < 4; i++)
         //{
-        if (hitNew.collider != null && hit.collider.name == hitNew.collider.name)
+        if (hitNew.collider != null)// && hit.collider.name == hitNew.collider.name)
         {
             return hitNew.collider.gameObject;
         }
@@ -137,15 +142,19 @@ public class UnitController : MonoBehaviour
 
     private RaycastHit2D RayCast(RaycastHit2D hit, Vector2 direction)
     {
-        //hit.collider.enabled = false;
+        hit.collider.enabled = false;
         var hitNew = Physics2D.Raycast(hit.transform.position, direction);
-        //hit.collider.enabled = true;
+        hit.collider.enabled = true;
         return hitNew;
     }
 
     void OnMouseExit()
     {
-        State = UnitState.Idle;
+        if (State != UnitState.Moved)
+        {
+            State = UnitState.Idle;
+        }
+
         //Debug.Log(string.Format("mouse exit {0}", _name));
     }
 
@@ -168,12 +177,8 @@ public class UnitController : MonoBehaviour
                 break;
         }
 
-        if (State == UnitState.Moved)
-        {
-            State = UnitState.Idle;
-            // MoveToNewPosition();
-
-        }
+        StartCoroutine(Move());
+        
         //if (!mouseOn)// && !busy)
         //{
 
@@ -217,13 +222,27 @@ public class UnitController : MonoBehaviour
         //}
     }
 
-    private void MoveToNewPosition()
+    private IEnumerator Move()
     {
-        //if (newPos != null)
-        //{
+        if (State == UnitState.Moved)
+        {
+            Debug.Log(string.Format("moved {0}", _name));
+            var newVec = new Vector2(transform.root.position.x, transform.root.position.y);
+            transform.root.position = Vector2.MoveTowards(newVec, newPos, 1);
+            //State = UnitState.Idle;
+            //this.transform.root
 
-        //}
+        }
+        yield return new WaitForSeconds(0);
     }
+
+    //private void MoveToNewPosition()
+    //{
+    //    //if (newPos != null)
+    //    //{
+       
+    //    //}
+    //}
 
     private IEnumerator PlayAnimation(string name)
     {
