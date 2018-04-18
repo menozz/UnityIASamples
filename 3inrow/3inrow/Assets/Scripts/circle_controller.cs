@@ -13,7 +13,7 @@ public class circle_controller : MonoBehaviour
     public string selectString = "units_select_01";
     public string Inverted = "unit_mouse_inverted_01";
     private bool mouseOn = false;
-    private bool busy = false;
+ //   private bool busy = false;
 
     void Start()
     {
@@ -50,12 +50,12 @@ public class circle_controller : MonoBehaviour
 
     void Update()
     {
-        if (!mouseOn && !busy)
+        if (!mouseOn)// && !busy)
         {
             StartCoroutine(IdlePlay(idleString));
            // IdlePlay(idleString);
         }
-        if(mouseOn && !busy)
+        if(mouseOn)// && !busy)
         {
             StartCoroutine(IdlePlay(Inverted));
             //IdlePlay(Inverted);
@@ -95,10 +95,10 @@ public class circle_controller : MonoBehaviour
 
     private IEnumerator IdlePlay(string name)
     {
-        busy = true;
+       // busy = true;
         animator.Play(name);
         yield return new WaitForSeconds(0.0f);
-        busy = false;
+       // busy = false;
 
     }
 
