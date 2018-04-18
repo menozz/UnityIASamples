@@ -69,7 +69,7 @@ Transform:
   m_GameObject: {fileID: 1002635542551608}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.7000002, y: 1.7000002, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4318743282019360}
   m_RootOrder: 0
@@ -164,7 +164,6 @@ MonoBehaviour:
   OnMouseMoveAnim: units_moved_01
   OnMouseDragAnim: units_select_01
   OnSelectedAnim: unit_mouse_inverted_01
-  State: 0
 --- !u!212 &212262514298611830
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -55,7 +55,7 @@ Transform:
   m_GameObject: {fileID: 1711201502843464}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.7000002, y: 1.7000002, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4937968195181022}
   m_RootOrder: 0
@@ -93,7 +93,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 2
   m_CollisionDetection: 0
-  m_Constraints: 5
+  m_Constraints: 4
 --- !u!61 &61416042545086194
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -164,7 +164,6 @@ MonoBehaviour:
   OnMouseMoveAnim: units_moved_01
   OnMouseDragAnim: units_select_01
   OnSelectedAnim: unit_mouse_inverted_01
-  State: 0
 --- !u!212 &212701167650185594
 SpriteRenderer:
   m_ObjectHideFlags: 1

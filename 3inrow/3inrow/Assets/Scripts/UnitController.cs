@@ -9,7 +9,8 @@ public enum UnitState
     MouseDrag,
     MouseDown,
     Selected,
-    Moved
+    Moved,
+    MoveEnded
 }
 
 public class UnitController : MonoBehaviour
@@ -20,7 +21,7 @@ public class UnitController : MonoBehaviour
     public string OnMouseMoveAnim = "units_moved_01";
     public string OnMouseDragAnim = "units_select_01";
     public string OnSelectedAnim = "unit_mouse_inverted_01";
-    public UnitState State = UnitState.Idle;
+    //public UnitState State = UnitState.Idle;
 
     private RaycastHit2D srcDrag;
     private Vector3 newPos;
@@ -33,41 +34,60 @@ public class UnitController : MonoBehaviour
 
     void OnMouseEnter()
     {
-        if (State != UnitState.Selected)
-        {
-            State = UnitState.Selected;
-        }
+        animator.SetBool("MouseMove", true);
+        animator.SetBool("Drag", false);
+
+        //if (State != UnitState.MoveEnded)
+        //{
+        //    State = UnitState.Selected;
+        //}
 
         //Debug.Log(string.Format("mouse enter {0}",_name));
     }
 
     void OnMouseDown()
     {
-        // Debug.Log(string.Format("mouse down {0}", _name));
-        if (State == UnitState.Selected)
-        {
-            State = UnitState.MouseDown;
-            //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //  animator.SetBool("MouseMove", false);
 
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-            if (hit.collider != null)
-            {
-                srcDrag = hit;
-            }
-        }
+        // Debug.Log(string.Format("mouse down {0}", _name));
+        //if (State == UnitState.Selected)
+        //{
+        //    State = UnitState.MouseDown;
+
+        //    //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        //    if (hit.collider != null)
+        //    {
+        //        srcDrag = hit;
+        //    }
+        //}
 
     }
 
 
     void OnMouseUp()
     {
-        State = UnitState.Idle;
+        //animator.SetBool("Drag", false);
+        //animator.SetBool("MouseMove", true);
+
+        //    if (State != UnitState.Selected)
+        //    {
+        //        State = UnitState.Idle;
+        //    }
+
         //  Debug.Log(string.Format("mouse up {0}", _name));
     }
 
     void OnMouseOver()
     {
+        //animator.SetBool("Drag", false);
+        //animator.SetBool("MouseMove", true);
+        //   animator.SetBool("Drag", false);
+        //Debug.Log(string.Format("mouse over {0}", _name));
+
+        //State = UnitState.Selected;
         //if (!mouseOn)
         //{
         //   // mouseOn = true;
@@ -78,47 +98,63 @@ public class UnitController : MonoBehaviour
         //  Debug.Log(string.Format("mouse over {0}", _name));
     }
 
+    void OnMouseExit()
+    {
+        animator.SetBool("Drag", false);
+        animator.SetBool("MouseMove", false);
+
+        //if (State != UnitState.MoveEnded)
+        //{
+        //    State = UnitState.Idle;
+        //}
+
+        //Debug.Log(string.Format("mouse exit {0}", _name));
+    }
+
 
     void OnMouseDrag()
     {
-        if (State == UnitState.MouseDown)
-        {
-            if (Input.GetAxis("Mouse X") < -0.1)
-            {
-                Debug.Log(string.Format("axis  x < 0 {0}", _name));
-            }
+        animator.SetBool("Drag", true);
+        animator.SetBool("MouseMove", false);
 
-            if (Input.GetAxis("Mouse X") > 0.1)
-            {
-                State = UnitState.MouseDrag;
-                Debug.Log(string.Format("right {0}", _name));
-                var obj = testRight(srcDrag);
-                if (obj != null)
-                {
-                    var controller = obj.transform.GetChild(0).gameObject.GetComponent<UnitController>();
-                    controller.MoveTo(srcDrag.transform.position);
-                    MoveTo(obj.transform.position);
-                }
-            }
+        //if (State == UnitState.MouseDown)
+        //{
+        //    if (Input.GetAxis("Mouse X") < -0.1)
+        //    {
+        //        Debug.Log(string.Format("axis  x < 0 {0}", _name));
+        //    }
 
-            if (Input.GetAxis("Mouse Y") > 0.1)
-            {
-                Debug.Log(string.Format("axis y > 0 {0}", _name));
-            }
+        //    if (Input.GetAxis("Mouse X") > 0.1)
+        //    {
+        //        State = UnitState.MouseDrag;
+        //        Debug.Log(string.Format("right {0}", _name));
+        //        var obj = testRight(srcDrag);
+        //        if (obj != null)
+        //        {
+        //            var controller = obj.transform.GetChild(0).gameObject.GetComponent<UnitController>();
+        //            controller.MoveTo(srcDrag.transform.position);
+        //            MoveTo(obj.transform.position);
+        //        }
+        //    }
 
-            if (Input.GetAxis("Mouse Y") < -0.1)
-            {
-                Debug.Log(string.Format("axis y < 0 {0}", _name));
-            }
+        //    if (Input.GetAxis("Mouse Y") > 0.1)
+        //    {
+        //        Debug.Log(string.Format("axis y > 0 {0}", _name));
+        //    }
 
-        }
+        //    if (Input.GetAxis("Mouse Y") < -0.1)
+        //    {
+        //        Debug.Log(string.Format("axis y < 0 {0}", _name));
+        //    }
+
+        //}
 
     }
 
     public void MoveTo(Vector3 transformPosition)
     {
         newPos = transformPosition;
-        State = UnitState.Moved;
+       // State = UnitState.Moved;
     }
 
     //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -148,36 +184,27 @@ public class UnitController : MonoBehaviour
         return hitNew;
     }
 
-    void OnMouseExit()
-    {
-        if (State != UnitState.Moved)
-        {
-            State = UnitState.Idle;
-        }
-
-        //Debug.Log(string.Format("mouse exit {0}", _name));
-    }
-
     void Update()
     {
-        switch (State)
-        {
-            case UnitState.Selected:
-                StartCoroutine(PlayAnimation(OnSelectedAnim));
-                break;
-            case UnitState.MouseDrag:
-            case UnitState.MouseDown:
-                StartCoroutine(PlayAnimation(OnMouseDragAnim));
-                break;
-            case UnitState.Moved:
-                StartCoroutine(PlayAnimation(OnMouseMoveAnim));
-                break;
-            default:
-                StartCoroutine(PlayAnimation(OnIdleAnim));
-                break;
-        }
+        //switch (State)
+        //{
+        //    case UnitState.Selected:
+        //        StartCoroutine(PlayAnimation(OnSelectedAnim));
+        //        break;
+        //    case UnitState.MouseDrag:
+        //    case UnitState.MouseDown:
+        //        StartCoroutine(PlayAnimation(OnMouseDragAnim));
+        //        break;
+        //    case UnitState.Moved:
+        //    case UnitState.MoveEnded:
+        //        StartCoroutine(PlayAnimation(OnMouseMoveAnim));
+        //        break;
+        //    default:
+        //        StartCoroutine(PlayAnimation(OnIdleAnim));
+        //        break;
+        //}
 
-        StartCoroutine(Move());
+        //StartCoroutine(Move());
         
         //if (!mouseOn)// && !busy)
         //{
@@ -222,19 +249,19 @@ public class UnitController : MonoBehaviour
         //}
     }
 
-    private IEnumerator Move()
-    {
-        if (State == UnitState.Moved)
-        {
-            Debug.Log(string.Format("moved {0}", _name));
-            var newVec = new Vector2(transform.root.position.x, transform.root.position.y);
-            transform.root.position = Vector2.MoveTowards(newVec, newPos, 1);
-            //State = UnitState.Idle;
-            //this.transform.root
+    //private IEnumerator Move()
+    //{
+    //    if (State == UnitState.Moved)
+    //    {
+    //        Debug.Log(string.Format("moved {0}", _name));
+    //        var newVec = new Vector2(transform.root.position.x, transform.root.position.y);
+    //        transform.root.position = Vector2.MoveTowards(newVec, newPos, 1);
+    //        State = UnitState.MoveEnded;
+    //        //this.transform.root
 
-        }
-        yield return new WaitForSeconds(0);
-    }
+    //    }
+    //    yield return new WaitForSeconds(0);
+    //}
 
     //private void MoveToNewPosition()
     //{
