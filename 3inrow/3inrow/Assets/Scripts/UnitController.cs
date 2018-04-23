@@ -15,6 +15,13 @@ public enum UnitState
 
 public class UnitController : MonoBehaviour
 {
+
+    public delegate void CallBack(UnitController unit);
+    private CallBack onMouseDown;
+    private CallBack onMouseDrag;
+    private CallBack onMouseUP;
+    public Vector3 offset;
+
     public Animator animator;
     private string _name = Guid.NewGuid().ToString("N");
     public string OnIdleAnim = "units_idle_01";
@@ -25,11 +32,33 @@ public class UnitController : MonoBehaviour
 
     private RaycastHit2D srcDrag;
     private Vector3 newPos;
+    private Vector3 screenPoint;
+    //private Vector3 offset;
+    private Collider currentCollider;
 
+    public void addMouseDown(CallBack callback)
+    {
+        onMouseDown += callback;
+    }
+    public void addMouseDrag(CallBack callback)
+    {
+        onMouseDrag += callback;
+    }
+    public void addMouseUp(CallBack callback)
+    {
+        onMouseUP += callback;
+    }
 
     void Start()
     {
-        if (animator == null) animator = this.gameObject.GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = this.gameObject.GetComponent<Animator>();
+        }
+        if (currentCollider == null)
+        {
+            currentCollider = this.gameObject.GetComponent<Collider>();
+        }
     }
 
     void OnMouseEnter()
@@ -52,9 +81,23 @@ public class UnitController : MonoBehaviour
         //animator.SetBool("MouseMove", false);
         State = UnitState.Dragged;
 
+        offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, transform.position.z));
+
+        onMouseDown(this);
+
         //  animator.SetBool("MouseMove", false);
 
-        // Debug.Log(string.Format("mouse down {0}", _name));
+        //Debug.Log(string.Format("mouse down {0}", _name));
+
+        ////Vector2 srcworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        // screenPoint = Camera.main.WorldToScreenPoint(Input.mousePosition);
+
+
+        //offset = screenPoint - Camera.main.ScreenToWorldPoint(
+        //             new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+
+        //Debug.Log(string.Format("offset {0} {1}", _name, offset));
         //if (State == UnitState.Selected)
         //{
         //    State = UnitState.MouseDown;
@@ -77,6 +120,7 @@ public class UnitController : MonoBehaviour
         //animator.SetBool("Drag", false);
         //animator.SetBool("MouseMove", false);
         State = UnitState.Idle;
+        onMouseUP(this);
 
         //animator.SetBool("Drag", false);
         //animator.SetBool("MouseMove", true);
@@ -132,6 +176,38 @@ public class UnitController : MonoBehaviour
 
     void OnMouseDrag()
     {
+        onMouseDrag(this);
+        //if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0)
+        //if (Input.GetAxis("Mouse X") > 0)
+        //{
+        //    var srchit = Physics2D.Raycast(transform.position, Vector2.zero);
+        //    if (srchit.collider != null)
+        //    {
+        //        var gobj = testRight(srchit);
+        //        Debug.Log(gobj.name);
+
+        //        var tmp = transform.position;
+        //        var curSrc = new Vector2(transform.position.x, transform.position.y);
+        //        //var newPosit = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+        //        var curTrgt = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+        //        transform.position = Vector2.MoveTowards(curSrc, curTrgt, 0.5f);
+        //        gobj.transform.position = Vector2.MoveTowards(curTrgt, curSrc, 0.5f);
+
+        //        //Debug.Log(gobj.transform.position);
+
+        //        //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //        //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
+        //        //if (dsthit.collider != null)
+        //        //{
+
+        //        //}
+        //    }
+        //}
+        //Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+
+
+        //Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
+        //transform.position = curPosition;
         //animator.SetBool("Drag", true);
         //animator.SetBool("MouseMove", false);
 

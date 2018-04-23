@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,15 +31,16 @@ public class GameGenField : MonoBehaviour
     public int shags = 15;
 
     GameObject goalLabel, shagLabel;
+    private Dictionary<int, GameObject> balls = new Dictionary<int, GameObject>();
 
     List<Vector2> lst = new List<Vector2>();
-
+    private Collider2D srchit;
 
     void Start()
     {
         nextUsage = Time.time + firstDelay;
         deletedObj = GameObject.Find("deleteObj");
-        initGameField();
+        initGameField(); 
 
         goalLabel = GameObject.Find("GoalLabel") as GameObject;
         shagLabel = GameObject.Find("ShagLabel") as GameObject;
@@ -49,6 +51,26 @@ public class GameGenField : MonoBehaviour
     void FixedUpdate()
     {
 
+    }
+
+    void OnMouseDown()
+    {
+        //screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+
+        //offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        if (hit.collider != null)
+        {
+            srchit = hit.collider;
+        }
+    }
+
+    void OnMouseDrag()
+    {
+        //Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+        //Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
+        //transform.position = curPosition;
     }
 
     void Update()
@@ -63,32 +85,48 @@ public class GameGenField : MonoBehaviour
         //    }
         //}
 
-        if (Input.GetMouseButtonDown(0))
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //    var hit= Physics2D.Raycast(worldPoint, Vector2.zero);
+        //    if (hit.collider != null)
+        //    {
+        //        srchit = hit.collider;
+        //    }
+        //}
+
+        if (Input.GetAxis("Mouse X") > 0)
         {
-            if (Input.GetAxis("Mouse X") < 0 || Input.GetAxis("Mouse X") > 0)
+            //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //var srchit = Physics2D.Raycast(worldPoint, Vector2.zero);
+
+            //var srchit = Physics2D.Raycast(transform.position, Vector2.zero);
+            if (srchit!=null)
             {
-                Vector2 srcworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                var srchit = Physics2D.Raycast(srcworldPoint, Vector2.zero);
-                if (srchit.collider != null)
-                {
-                    {
-                        Debug.Log("drag");
-                        //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                        //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
-                        //if (dsthit.collider != null)
-                        //{
+                var gobj = testRightGet(srchit);
+                Debug.Log(gobj.name);
 
-                        //}
-                    }
-                }
+                //    var tmp = srchit.transform.position;
+                var curSrc = new Vector2(srchit.transform.position.x, srchit.transform.position.y);
+                //var newPosit = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+                var curTrgt = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+                srchit.transform.position = Vector2.MoveTowards(curSrc, curTrgt, 0.5f);
+                gobj.transform.position = Vector2.MoveTowards(curTrgt, curSrc, 0.5f);
+
+                //Debug.Log(gobj.transform.position);
+
+                //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
+                //if (dsthit.collider != null)
+                //{
+
+                //}
             }
-
-
         }
 
         //if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
         //{
-        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //   Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
         //    if (hit.collider != null && hit.transform.childCount > 0 && hit.transform.GetChild(0).tag == "unit")
         //    {
@@ -120,6 +158,21 @@ public class GameGenField : MonoBehaviour
         //   this.DoSomethingInAWhile();
 
     }
+
+    GameObject testRightGet(Collider2D hit)
+    {
+        var hitNew = RayCastCollider(hit, hit.transform.right);
+        //for (int i = 0; i < 4; i++)
+        //{
+        if (hitNew.collider != null)// && hit.collider.name == hitNew.collider.name)
+        {
+            return hitNew.collider.gameObject;
+        }
+        //}
+        return null;
+    }
+
+
     //private void DoSomethingInAWhile()
     //{
     //    Vector2 prev = Vector2.zero;
@@ -183,7 +236,9 @@ public class GameGenField : MonoBehaviour
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
             lst.Add(deletedObj.transform.GetChild(i).gameObject.transform.position);
-            Destroy(deletedObj.transform.GetChild(i).gameObject);
+            var toRemove = deletedObj.transform.GetChild(i).gameObject;
+            balls.Remove(toRemove.GetInstanceID());
+            Destroy(toRemove);
         }
         respawnNewCircles(lst);
         //  deletedObj.transform.position = new Vector2(-20, -20);
@@ -200,7 +255,9 @@ public class GameGenField : MonoBehaviour
         calcShags(-1);
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
-            Destroy(deletedObj.transform.GetChild(i).gameObject);
+            var toRemove = deletedObj.transform.GetChild(i).gameObject;
+            balls.Remove(toRemove.GetInstanceID());
+            Destroy(toRemove);
         }
         respawnNewCircles(hit.transform.position);
 
@@ -336,6 +393,14 @@ public class GameGenField : MonoBehaviour
         return hitNew;
     }
 
+    private RaycastHit2D RayCastCollider(Collider2D collider, Vector2 direction)
+    {
+        collider.enabled = false;
+        var hitNew = Physics2D.Raycast(collider.transform.position, direction);
+        collider.enabled = true;
+        return hitNew;
+    }
+
     void initGameField()
     {
         for (int y = 0; y < ballCount; y++)
@@ -351,26 +416,32 @@ public class GameGenField : MonoBehaviour
     {
         int rndN = Random.Range(1, 7);
         var vector = new Vector2(x, y);
+        GameObject ball = null;
         switch (rndN)
         {
             case 1:
-                Instantiate(blue, vector, Quaternion.identity);
+                ball = Instantiate(blue, vector, Quaternion.identity);
                 break;
             case 2:
-                Instantiate(yellow, vector, Quaternion.identity);
+                ball = Instantiate(yellow, vector, Quaternion.identity);
                 break;
             case 3:
-                Instantiate(green, vector, Quaternion.identity);
+                ball = Instantiate(green, vector, Quaternion.identity);
                 break;
             case 4:
-                Instantiate(red, vector, Quaternion.identity);
+                ball = Instantiate(red, vector, Quaternion.identity);
                 break;
             case 5:
-                Instantiate(attack, vector, Quaternion.identity);
+                ball = Instantiate(attack, vector, Quaternion.identity);
                 break;
             case 6:
-                Instantiate(defence, vector, Quaternion.identity);
+                ball = Instantiate(defence, vector, Quaternion.identity);
                 break;
+        }
+
+        if (ball != null)
+        {
+            balls.Add(ball.GetInstanceID(), ball);
         }
     }
 }
