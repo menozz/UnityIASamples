@@ -6,11 +6,11 @@ using UnityEngine;
 public enum UnitState
 {
     Idle,
-    MouseDrag,
-    MouseDown,
     Selected,
-    Moved,
-    MoveEnded
+    Dragged,
+    //   MouseDown,
+    //  Moved,
+    //  MoveEnded
 }
 
 public class UnitController : MonoBehaviour
@@ -21,7 +21,7 @@ public class UnitController : MonoBehaviour
     public string OnMouseMoveAnim = "units_moved_01";
     public string OnMouseDragAnim = "units_select_01";
     public string OnSelectedAnim = "unit_mouse_inverted_01";
-    //public UnitState State = UnitState.Idle;
+    public UnitState State = UnitState.Idle;
 
     private RaycastHit2D srcDrag;
     private Vector3 newPos;
@@ -34,8 +34,9 @@ public class UnitController : MonoBehaviour
 
     void OnMouseEnter()
     {
-        animator.SetBool("MouseMove", true);
-        animator.SetBool("Drag", false);
+        //animator.SetBool("MouseMove", true);
+        State = UnitState.Selected;
+        //animator.SetBool("Drag", false);
 
         //if (State != UnitState.MoveEnded)
         //{
@@ -47,6 +48,10 @@ public class UnitController : MonoBehaviour
 
     void OnMouseDown()
     {
+        //animator.SetBool("Drag", true);
+        //animator.SetBool("MouseMove", false);
+        State = UnitState.Dragged;
+
         //  animator.SetBool("MouseMove", false);
 
         // Debug.Log(string.Format("mouse down {0}", _name));
@@ -70,6 +75,10 @@ public class UnitController : MonoBehaviour
     void OnMouseUp()
     {
         //animator.SetBool("Drag", false);
+        //animator.SetBool("MouseMove", false);
+        State = UnitState.Idle;
+
+        //animator.SetBool("Drag", false);
         //animator.SetBool("MouseMove", true);
 
         //    if (State != UnitState.Selected)
@@ -84,6 +93,10 @@ public class UnitController : MonoBehaviour
     {
         //animator.SetBool("Drag", false);
         //animator.SetBool("MouseMove", true);
+        if (State == UnitState.Idle)
+        {
+            State = UnitState.Selected;
+        }
         //   animator.SetBool("Drag", false);
         //Debug.Log(string.Format("mouse over {0}", _name));
 
@@ -100,8 +113,13 @@ public class UnitController : MonoBehaviour
 
     void OnMouseExit()
     {
-        animator.SetBool("Drag", false);
-        animator.SetBool("MouseMove", false);
+        // animator.SetBool("MouseMove", false);
+        if (State == UnitState.Selected)
+        {
+            State = UnitState.Idle;
+        }
+        //animator.SetBool("Drag", false);
+        //animator.SetBool("MouseMove", false);
 
         //if (State != UnitState.MoveEnded)
         //{
@@ -114,8 +132,8 @@ public class UnitController : MonoBehaviour
 
     void OnMouseDrag()
     {
-        animator.SetBool("Drag", true);
-        animator.SetBool("MouseMove", false);
+        //animator.SetBool("Drag", true);
+        //animator.SetBool("MouseMove", false);
 
         //if (State == UnitState.MouseDown)
         //{
@@ -154,7 +172,7 @@ public class UnitController : MonoBehaviour
     public void MoveTo(Vector3 transformPosition)
     {
         newPos = transformPosition;
-       // State = UnitState.Moved;
+        // State = UnitState.Moved;
     }
 
     //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -186,26 +204,32 @@ public class UnitController : MonoBehaviour
 
     void Update()
     {
-        //switch (State)
-        //{
-        //    case UnitState.Selected:
-        //        StartCoroutine(PlayAnimation(OnSelectedAnim));
-        //        break;
-        //    case UnitState.MouseDrag:
-        //    case UnitState.MouseDown:
-        //        StartCoroutine(PlayAnimation(OnMouseDragAnim));
-        //        break;
-        //    case UnitState.Moved:
-        //    case UnitState.MoveEnded:
-        //        StartCoroutine(PlayAnimation(OnMouseMoveAnim));
-        //        break;
-        //    default:
-        //        StartCoroutine(PlayAnimation(OnIdleAnim));
-        //        break;
-        //}
+        switch (State)
+        {
+            case UnitState.Selected:
+                //StartCoroutine(PlayAnimation(OnSelectedAnim));
+                animator.SetBool("MouseMove", true);
+                animator.SetBool("Drag", false);
+                break;
+            case UnitState.Dragged:
+                animator.SetBool("Drag", true);
+                animator.SetBool("MouseMove", false);
+                ///          case UnitState.MouseDown:
+                //                StartCoroutine(PlayAnimation(OnMouseDragAnim));
+                break;
+            //case UnitState.Moved:
+            //case UnitState.MoveEnded:
+            //    StartCoroutine(PlayAnimation(OnMouseMoveAnim));
+            //    break;
+            default:
+                //StartCoroutine(PlayAnimation(OnIdleAnim));
+                animator.SetBool("MouseMove", false);
+                animator.SetBool("Drag", false);
+                break;
+        }
 
         //StartCoroutine(Move());
-        
+
         //if (!mouseOn)// && !busy)
         //{
 
@@ -267,7 +291,7 @@ public class UnitController : MonoBehaviour
     //{
     //    //if (newPos != null)
     //    //{
-       
+
     //    //}
     //}
 
