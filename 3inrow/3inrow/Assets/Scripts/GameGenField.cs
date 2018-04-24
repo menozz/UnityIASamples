@@ -36,11 +36,19 @@ public class GameGenField : MonoBehaviour
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
 
+    private GameObject srcObj;
+    private GameObject dstObj;
+
+    private Vector3 fixSrcPos;
+    private Vector3 fixDstPos;
+
+    private bool _move;
+
     void Start()
     {
         nextUsage = Time.time + firstDelay;
         deletedObj = GameObject.Find("deleteObj");
-        initGameField(); 
+        initGameField();
 
         goalLabel = GameObject.Find("GoalLabel") as GameObject;
         shagLabel = GameObject.Find("ShagLabel") as GameObject;
@@ -73,8 +81,46 @@ public class GameGenField : MonoBehaviour
         //transform.position = curPosition;
     }
 
+    bool MoveTo(GameObject obj, Vector3 destination)
+    {
+        if (obj.transform.position != destination)
+        {
+            // Calculate the next position
+            //float delta = 15 * Time.deltaTime;
+          //  float speed = Vector3.Distance(destination, obj.transform.position) / 1f;
+            Vector3 currentPosition = obj.transform.position;
+            Vector3 nextPosition = Vector3.MoveTowards(currentPosition, destination, 2f * Time.deltaTime);
+
+            // Move the object to the next position
+            obj.transform.position = nextPosition;
+            return true;
+        }
+
+        return false;
+    }
+
     void Update()
     {
+        if (_move)
+        {
+            // var dstPos = dstObj.transform.position;
+            // var srcPos = srcObj.transform.position;
+            // var curSrc = new Vector2(srcPos.x, srcPos.y);
+            // var curTrgt = new Vector2(dstPos.x, dstPos.y);
+            //// float Speed = Vector3.Distance(curSrc, curTrgt) / 2f;
+            // srcObj.transform.position = Vector2.Lerp(curSrc, curTrgt, 30 * Time.deltaTime);
+            // dstObj.transform.position = Vector2.Lerp(curTrgt, curSrc, 30 * Time.deltaTime);
+            if (srcObj != null && fixDstPos != fixSrcPos)
+            {
+                var u = MoveTo(dstObj, fixSrcPos);
+                u &= MoveTo(dstObj, fixSrcPos);
+                if (!u)
+                {
+                    Clean();
+                    _move = false;
+                }
+            }
+        }
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -95,34 +141,34 @@ public class GameGenField : MonoBehaviour
         //    }
         //}
 
-        if (Input.GetAxis("Mouse X") > 0)
-        {
-            //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //var srchit = Physics2D.Raycast(worldPoint, Vector2.zero);
+        //if (Input.GetAxis("Mouse X") > 0)
+        //{
+        //    //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //    //var srchit = Physics2D.Raycast(worldPoint, Vector2.zero);
 
-            //var srchit = Physics2D.Raycast(transform.position, Vector2.zero);
-            if (srchit!=null)
-            {
-                var gobj = testRightGet(srchit);
-                Debug.Log(gobj.name);
+        //    //var srchit = Physics2D.Raycast(transform.position, Vector2.zero);
+        //    if (srchit!=null)
+        //    {
+        //        var gobj = testRightGet(srchit);
+        //        Debug.Log(gobj.name);
 
-                //    var tmp = srchit.transform.position;
-                var curSrc = new Vector2(srchit.transform.position.x, srchit.transform.position.y);
-                //var newPosit = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
-                var curTrgt = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
-                srchit.transform.position = Vector2.MoveTowards(curSrc, curTrgt, 0.5f);
-                gobj.transform.position = Vector2.MoveTowards(curTrgt, curSrc, 0.5f);
+        //        //    var tmp = srchit.transform.position;
+        //        var curSrc = new Vector2(srchit.transform.position.x, srchit.transform.position.y);
+        //        //var newPosit = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+        //        var curTrgt = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
+        //        srchit.transform.position = Vector2.MoveTowards(curSrc, curTrgt, 0.5f);
+        //        gobj.transform.position = Vector2.MoveTowards(curTrgt, curSrc, 0.5f);
 
-                //Debug.Log(gobj.transform.position);
+        //        //Debug.Log(gobj.transform.position);
 
-                //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
-                //if (dsthit.collider != null)
-                //{
+        //        //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //        //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
+        //        //if (dsthit.collider != null)
+        //        //{
 
-                //}
-            }
-        }
+        //        //}
+        //    }
+        //}
 
         //if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
         //{
@@ -157,6 +203,14 @@ public class GameGenField : MonoBehaviour
 
         //   this.DoSomethingInAWhile();
 
+    }
+
+    private void Clean()
+    {
+        srcObj = null;
+        dstObj = null;
+        fixDstPos = Vector3.zero;
+        fixSrcPos = Vector3.zero;
     }
 
     GameObject testRightGet(Collider2D hit)
@@ -441,7 +495,51 @@ public class GameGenField : MonoBehaviour
 
         if (ball != null)
         {
+            var controller = ball.transform.GetChild(0).GetComponent<UnitController>();
+            controller.addMouseDown(addMouseDown);
+            controller.addMouseDrag(addMouseDrag);
+            controller.addMouseUp(addMouseUp);
+            controller.addMouseEnter(addMouseEnter);
             balls.Add(ball.GetInstanceID(), ball);
         }
+    }
+
+    private void addMouseEnter(UnitController obj)
+    {
+        dstObj = obj.gameObject;
+        if (srcObj != null)
+        {
+            fixDstPos = dstObj.transform.position;
+            fixSrcPos = srcObj.transform.position;
+            if (fixSrcPos != fixDstPos)
+            {
+                var srcit = Physics2D.Raycast(fixSrcPos, Vector2.zero);
+                var dsthit = Physics2D.Raycast(fixDstPos, Vector2.zero);
+                if (srcit.collider != null && dsthit.collider != null)
+                {
+                    _move = true;
+                }
+            }
+        }
+    }
+
+    private void addMouseUp(UnitController obj)
+    {
+        Clean();
+        //Debug.Log("mouse up");
+        //Debug.Log(obj.transform.position);
+    }
+
+    private void addMouseDrag(UnitController obj)
+    {
+        //Debug.Log("mouse drag");
+        //Debug.Log(obj.transform.position);
+    }
+
+    private void addMouseDown(UnitController obj)
+    {
+        //Debug.Log("mouse down");
+        //Debug.Log(obj.transform.position);
+        srcObj = obj.gameObject;
     }
 }

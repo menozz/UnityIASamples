@@ -16,22 +16,23 @@ public enum UnitState
 public class UnitController : MonoBehaviour
 {
 
-    public delegate void CallBack(UnitController unit);
+    public delegate void CallBack(UnitController obj);
     private CallBack onMouseDown;
     private CallBack onMouseDrag;
     private CallBack onMouseUP;
-    public Vector3 offset;
+    private CallBack onMouseEnter;
+    //public Vector3 offset;
 
     public Animator animator;
     private string _name = Guid.NewGuid().ToString("N");
-    public string OnIdleAnim = "units_idle_01";
-    public string OnMouseMoveAnim = "units_moved_01";
-    public string OnMouseDragAnim = "units_select_01";
-    public string OnSelectedAnim = "unit_mouse_inverted_01";
-    public UnitState State = UnitState.Idle;
+    private string OnIdleAnim = "units_idle_01";
+    private string OnMouseMoveAnim = "units_moved_01";
+    private string OnMouseDragAnim = "units_select_01";
+    private string OnSelectedAnim = "unit_mouse_inverted_01";
+    private UnitState State = UnitState.Idle;
 
     private RaycastHit2D srcDrag;
-    private Vector3 newPos;
+    //private Vector3 newPos;
     private Vector3 screenPoint;
     //private Vector3 offset;
     private Collider currentCollider;
@@ -49,6 +50,12 @@ public class UnitController : MonoBehaviour
         onMouseUP += callback;
     }
 
+    public void addMouseEnter(CallBack callback)
+    {
+        onMouseEnter += callback;
+    }
+
+
     void Start()
     {
         if (animator == null)
@@ -65,6 +72,7 @@ public class UnitController : MonoBehaviour
     {
         //animator.SetBool("MouseMove", true);
         State = UnitState.Selected;
+        onMouseEnter(this);
         //animator.SetBool("Drag", false);
 
         //if (State != UnitState.MoveEnded)
@@ -81,7 +89,7 @@ public class UnitController : MonoBehaviour
         //animator.SetBool("MouseMove", false);
         State = UnitState.Dragged;
 
-        offset = transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, transform.position.z));
+       // offset = transform.position; //- Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, transform.position.z));
 
         onMouseDown(this);
 
@@ -245,11 +253,11 @@ public class UnitController : MonoBehaviour
 
     }
 
-    public void MoveTo(Vector3 transformPosition)
-    {
-        newPos = transformPosition;
-        // State = UnitState.Moved;
-    }
+    //public void MoveTo(Vector3 transformPosition)
+    //{
+    //    newPos = transformPosition;
+    //    // State = UnitState.Moved;
+    //}
 
     //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
