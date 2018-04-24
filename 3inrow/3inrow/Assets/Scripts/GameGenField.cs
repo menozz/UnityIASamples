@@ -42,7 +42,7 @@ public class GameGenField : MonoBehaviour
     private Vector3 fixSrcPos;
     private Vector3 fixDstPos;
 
-    private bool _move;
+   // private bool _move;
 
     void Start()
     {
@@ -61,37 +61,12 @@ public class GameGenField : MonoBehaviour
 
     }
 
-    void OnMouseDown()
-    {
-        //screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-
-        //offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-        if (hit.collider != null)
-        {
-            srchit = hit.collider;
-        }
-    }
-
-    void OnMouseDrag()
-    {
-        //Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-        //Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
-        //transform.position = curPosition;
-    }
 
     bool MoveTo(GameObject obj, Vector3 destination)
     {
         if (obj.transform.position != destination)
         {
-            // Calculate the next position
-            //float delta = 15 * Time.deltaTime;
-          //  float speed = Vector3.Distance(destination, obj.transform.position) / 1f;
-            Vector3 currentPosition = obj.transform.position;
-            Vector3 nextPosition = Vector3.MoveTowards(currentPosition, destination, 2f * Time.deltaTime);
-
-            // Move the object to the next position
+            Vector3 nextPosition = Vector3.MoveTowards(obj.transform.position, destination, 2f * Time.deltaTime );
             obj.transform.position = nextPosition;
             return true;
         }
@@ -101,26 +76,10 @@ public class GameGenField : MonoBehaviour
 
     void Update()
     {
-        if (_move)
-        {
-            // var dstPos = dstObj.transform.position;
-            // var srcPos = srcObj.transform.position;
-            // var curSrc = new Vector2(srcPos.x, srcPos.y);
-            // var curTrgt = new Vector2(dstPos.x, dstPos.y);
-            //// float Speed = Vector3.Distance(curSrc, curTrgt) / 2f;
-            // srcObj.transform.position = Vector2.Lerp(curSrc, curTrgt, 30 * Time.deltaTime);
-            // dstObj.transform.position = Vector2.Lerp(curTrgt, curSrc, 30 * Time.deltaTime);
-            if (srcObj != null && fixDstPos != fixSrcPos)
-            {
-                var u = MoveTo(dstObj, fixSrcPos);
-                u &= MoveTo(dstObj, fixSrcPos);
-                if (!u)
-                {
-                    Clean();
-                    _move = false;
-                }
-            }
-        }
+        //if (_move)
+        //{
+            MoveMethod();
+        //}
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -205,10 +164,27 @@ public class GameGenField : MonoBehaviour
 
     }
 
+    private void  MoveMethod()
+    {
+        if (this.srcObj != null && this.fixDstPos != this.fixSrcPos)
+        {
+            var u = this.MoveTo(this.srcObj, this.fixDstPos);
+            u &= this.MoveTo(this.dstObj, this.fixSrcPos);
+            if (!u)
+            {
+                this.Clean();
+               // this._move = false;
+            }
+        }
+    }
+
     private void Clean()
     {
-        srcObj = null;
-        dstObj = null;
+
+        srcObj.GetComponent<UnitController>().State = UnitState.Idle;
+        dstObj.GetComponent<UnitController>().State = UnitState.Idle;
+        //srcObj = null;
+        //dstObj = null;
         fixDstPos = Vector3.zero;
         fixSrcPos = Vector3.zero;
     }
@@ -497,7 +473,7 @@ public class GameGenField : MonoBehaviour
         {
             var controller = ball.transform.GetChild(0).GetComponent<UnitController>();
             controller.addMouseDown(addMouseDown);
-            controller.addMouseDrag(addMouseDrag);
+         //   controller.addMouseDrag(addMouseDrag);
             controller.addMouseUp(addMouseUp);
             controller.addMouseEnter(addMouseEnter);
             balls.Add(ball.GetInstanceID(), ball);
@@ -509,6 +485,7 @@ public class GameGenField : MonoBehaviour
         dstObj = obj.gameObject;
         if (srcObj != null)
         {
+            if(!obj.IsDragged && !this.srcObj.GetComponent<UnitController>().IsDragged)
             fixDstPos = dstObj.transform.position;
             fixSrcPos = srcObj.transform.position;
             if (fixSrcPos != fixDstPos)
@@ -517,7 +494,9 @@ public class GameGenField : MonoBehaviour
                 var dsthit = Physics2D.Raycast(fixDstPos, Vector2.zero);
                 if (srcit.collider != null && dsthit.collider != null)
                 {
-                    _move = true;
+                  //  _move = true;
+                    obj.State = UnitState.Moved;
+                    this.srcObj.GetComponent<UnitController>().State = UnitState.Dragged;
                 }
             }
         }
@@ -526,20 +505,15 @@ public class GameGenField : MonoBehaviour
     private void addMouseUp(UnitController obj)
     {
         Clean();
-        //Debug.Log("mouse up");
-        //Debug.Log(obj.transform.position);
     }
 
-    private void addMouseDrag(UnitController obj)
-    {
-        //Debug.Log("mouse drag");
-        //Debug.Log(obj.transform.position);
-    }
+    //private void addMouseDrag(UnitController obj)
+    //{
+    //}
 
     private void addMouseDown(UnitController obj)
     {
-        //Debug.Log("mouse down");
-        //Debug.Log(obj.transform.position);
+        if(!obj.IsDragged)
         srcObj = obj.gameObject;
     }
 }
