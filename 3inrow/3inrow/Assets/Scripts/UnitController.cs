@@ -41,7 +41,7 @@ public class UnitController : MonoBehaviour
     private Vector3 screenPoint;
     private Collider currentCollider;
 
-    private Vector3 swapPosition;
+//    private Vector3 swapPosition;
 
     public void addMouseDown(CallBack callback)
     {
@@ -62,6 +62,7 @@ public class UnitController : MonoBehaviour
     }
 
     public bool IsActive;
+    private UnitController rollDest;
 
     void Start()
     {
@@ -120,13 +121,13 @@ public class UnitController : MonoBehaviour
     }
 
 
-    //void OnMouseDrag()
-    //{
-    //    if (!this.IsDragged)
-    //    {
-    //        onMouseDrag(this);
-    //    }
-    //}
+    void OnMouseDrag()
+    {
+        //if (!this.IsDragged)
+        //{
+            onMouseDrag(this);
+        //}
+    }
 
     //GameObject testRight(RaycastHit2D hit)
     //{
@@ -174,66 +175,48 @@ public class UnitController : MonoBehaviour
 
     }
 
-    public void SetSwapPosition(Vector3 swapPos)
+   
+    //public States Swap(UnitController destination)
+    //{
+    //    rollDest = destination;
+    //    if (!IsActive)
+    //    {
+    //        if (IsRayCastHit(gameObject, destination.gameObject))
+    //        {
+    //            SetSwapPosition(destination.transform.position);
+    //            destination.SetSwapPosition(transform.position);
+    //        }
+    //        else
+    //        {
+    //            return false;
+    //        }
+    //    }
+
+    //    MoveTo();
+    //    destination.MoveTo();
+    //    return IsActive;
+    //}
+
+    //public bool HasRollback
+    //{
+    //    get { return rollDest != null; }
+    //}
+    //public States RollBack()
+    //{
+    //    return Swap(rollDest);
+    //}
+
+   
+    public bool MoveTo(Vector3 pos)
     {
-        if (IsActive)
-        {
-            return;
-        }
-
-        swapPosition = swapPos;
-        IsActive = true;
-    }
-
-    public bool Swap(UnitController destination)
-    {
-        if (!IsActive)
-        {
-            if (IsRayCastHit(gameObject, destination.gameObject))
-            {
-                SetSwapPosition(destination.transform.position);
-                destination.SetSwapPosition(transform.position);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        MoveTo();
-        destination.MoveTo();
-        return IsActive;
-    }
-
-    private bool IsRayCastHit(GameObject source, GameObject destination)
-    {
-        var fromPosition = source.transform.position;
-        var toPosition = destination.transform.position;
-        var direction = toPosition - fromPosition;
-        if (Math.Abs(direction.x) > 0.01f && Math.Abs(direction.y) > 0.01f)
-        {
-            return false;
-        }
-
-        if (Math.Abs(direction.x) > 1.5 || Math.Abs(direction.y) > 1.5)
-        {
-            return false;
-        }
-
-        
-        return true;
-    }
-
-    public void MoveTo()
-    {
-        var destination = swapPosition;
+        var destination = pos;
         if (transform.position != destination)
         {
             var nextPosition = Vector3.MoveTowards(transform.position, destination, 4f * Time.deltaTime);
             transform.position = nextPosition;
-            return;
+            return true;
         }
 
-        IsActive = false;
+        return false;
     }
 }

@@ -6,6 +6,13 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
+public enum States
+{
+    None,
+    SwapActive,
+    RollbackActive
+}
+
 public class GameGenField : MonoBehaviour
 {
     public GameObject blue;
@@ -36,14 +43,17 @@ public class GameGenField : MonoBehaviour
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
 
-    private UnitController srcObj;
-    private UnitController dstObj;
+    //private UnitController srcObj;
+    //private UnitController dstObj;
 
-    private bool IsActive;
-    private bool Rotated;
+  //  private bool IsActive;
+   // private bool IsRotated;
+    ///private States CurrentState;
+    private SwapController _swapController;
 
     void Start()
     {
+        _swapController = new SwapController();
         nextUsage = Time.time + firstDelay;
         deletedObj = GameObject.Find("deleteObj");
         initGameField();
@@ -56,15 +66,16 @@ public class GameGenField : MonoBehaviour
 
     void Update()
     {
-        if (srcObj != null && dstObj != null && srcObj.Name != dstObj.Name)
-        {
-            IsActive = srcObj.Swap(dstObj);
-            if (!IsActive)
-            {
-               // srcObj = null;
-                dstObj = null;
-            }
-        }
+        _swapController.Swap();
+        //if (srcObj != null && dstObj != null && srcObj.Name != dstObj.Name)
+        //{
+        //    CurrentState = srcObj.Swap(dstObj);
+        //    {
+        //    //    IsRotated = true;
+        //         srcObj = null;
+        //         dstObj = null;
+        //    }
+        //}
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -353,13 +364,13 @@ public class GameGenField : MonoBehaviour
         return hitNew;
     }
 
-    private RaycastHit2D RayCastCollider(Collider2D collider, Vector2 direction)
-    {
-        collider.enabled = false;
-        var hitNew = Physics2D.Raycast(collider.transform.position, direction);
-        collider.enabled = true;
-        return hitNew;
-    }
+    //private RaycastHit2D RayCastCollider(Collider2D collider, Vector2 direction)
+    //{
+    //    collider.enabled = false;
+    //    var hitNew = Physics2D.Raycast(collider.transform.position, direction);
+    //    collider.enabled = true;
+    //    return hitNew;
+    //}
 
     void initGameField()
     {
@@ -412,55 +423,59 @@ public class GameGenField : MonoBehaviour
 
     private void addMouseUp(UnitController obj)
     {
-        if (!IsActive)
+        if (!_swapController.IsBusy)
         {
-            srcObj = null;
-            //dstObj = null;
- //           IsActive = false;
+            _swapController = new SwapController();
         }
+        //if (IsRotated)
+        //{
+        //    IsActive = false;
+        //    IsRotated = false;
+        //    //   srcObj = null;
+        //    dstObj = null;
+        //}
+        //if (!IsActive)
+        //{
+        //    srcObj = null;
+        //}
+
     }
 
     private void addMouseDrag(UnitController obj)
     {
-        if (!IsActive)
+        if (!_swapController.IsBusy)
         {
-            srcObj = obj;
+            _swapController.Set1(obj);
         }
     }
 
     private void addMouseDown(UnitController obj)
     {
-        if (!IsActive)
-        {
-            srcObj = obj;
-        }
+        //if (!IsActive && !IsRotated)
+        //{
+        //    srcObj = obj;
+        //}
     }
     private void addMouseEnter(UnitController obj)
     {
-        if (!IsActive)
+      //  obj.RollBack();
+      
+        if (!_swapController.IsBusy)
         {
-            dstObj = obj;
+            _swapController.Set2(obj);
         }
 
-        //dstObj = obj.gameObject;
-        //if (srcObj != null)
+        //if (IsRotated)
         //{
-        //    if(!obj.IsDragged && !this.srcObj.GetComponent<UnitController>().IsDragged)
-        //    fixDstPos = dstObj.transform.position;
-        //    fixSrcPos = srcObj.transform.position;
-        //    if (fixSrcPos != fixDstPos)
+        //    if (dstObj.Name == obj.Name)
         //    {
-        //        var srcit = Physics2D.Raycast(fixSrcPos, Vector2.zero);
-        //        var dsthit = Physics2D.Raycast(fixDstPos, Vector2.zero);
-        //        if (srcit.collider != null && dsthit.collider != null)
-        //        {
-        //          //  _move = true;
-        //            obj.State = UnitState.Moved;
-        //            this.srcObj.GetComponent<UnitController>().State = UnitState.Dragged;
-        //        }
+        //        // Debug.Log("rotate");
+        //        dstObj = obj;
+        //        ////var tmp = srcObj;
+        //        ////srcObj = dstObj;
+        //        ////dstObj = tmp;
+        //        IsRotated = false;
         //    }
         //}
     }
-
-
 }
