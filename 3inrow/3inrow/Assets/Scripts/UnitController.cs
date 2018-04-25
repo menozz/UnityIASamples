@@ -128,23 +128,23 @@ public class UnitController : MonoBehaviour
     //    }
     //}
 
-    GameObject testRight(RaycastHit2D hit)
-    {
-        var hitNew = RayCast(hit, hit.transform.right);
-        if (hitNew.collider != null)
-        {
-            return hitNew.collider.gameObject;
-        }
-        return null;
-    }
+    //GameObject testRight(RaycastHit2D hit)
+    //{
+    //    var hitNew = RayCast(hit, hit.transform.right);
+    //    if (hitNew.collider != null)
+    //    {
+    //        return hitNew.collider.gameObject;
+    //    }
+    //    return null;
+    //}
 
-    private RaycastHit2D RayCast(RaycastHit2D hit, Vector2 direction)
-    {
-        hit.collider.enabled = false;
-        var hitNew = Physics2D.Raycast(hit.transform.position, direction);
-        hit.collider.enabled = true;
-        return hitNew;
-    }
+    //private RaycastHit2D RayCast(RaycastHit2D hit, Vector2 direction)
+    //{
+    //    hit.collider.enabled = false;
+    //    var hitNew = Physics2D.Raycast(hit.transform.position, direction);
+    //    hit.collider.enabled = true;
+    //    return hitNew;
+    //}
 
     void Update()
     {
@@ -187,9 +187,6 @@ public class UnitController : MonoBehaviour
 
     public bool Swap(UnitController destination)
     {
-
-        //if (IsRayCastHit(gameObject, destination.gameObject))
-        //{
         if (!IsActive)
         {
             if (IsRayCastHit(gameObject, destination.gameObject))
@@ -206,9 +203,6 @@ public class UnitController : MonoBehaviour
         MoveTo();
         destination.MoveTo();
         return IsActive;
-        // }
-
-        // return false;
     }
 
     private bool IsRayCastHit(GameObject source, GameObject destination)
@@ -226,17 +220,7 @@ public class UnitController : MonoBehaviour
             return false;
         }
 
-        //source.GetComponentInParent<Collider2D>().enabled = false;
-        //var hit = Physics2D.Raycast(source.transform.position, direction);
-        //source.GetComponentInParent<Collider2D>().enabled = true;
-
-        //var hitName = hit.collider.transform.GetChild(0).GetComponent<UnitController>().Name;
-        //var destName = destination.GetComponent<UnitController>().Name;
-        //if (destName == hitName)
-        //{
-        //    return true;
-        //}
-
+        
         return true;
     }
 

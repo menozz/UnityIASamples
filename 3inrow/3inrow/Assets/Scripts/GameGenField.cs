@@ -39,10 +39,8 @@ public class GameGenField : MonoBehaviour
     private UnitController srcObj;
     private UnitController dstObj;
 
-    //private Vector3 fixSrcPos;
-    //private Vector3 fixDstPos;
-
     private bool IsActive;
+    private bool Rotated;
 
     void Start()
     {
@@ -56,24 +54,6 @@ public class GameGenField : MonoBehaviour
         shagLabel.GetComponent<Text>().text = shags + "";
     }
 
-    void FixedUpdate()
-    {
-       
-    }
-
-
-    //bool MoveTo(GameObject obj, Vector3 destination)
-    //{
-    //    if (obj.transform.position != destination)
-    //    {
-    //        Vector3 nextPosition = Vector3.MoveTowards(obj.transform.position, destination, 2f * Time.deltaTime);
-    //        obj.transform.position = nextPosition;
-    //        return true;
-    //    }
-
-    //    return false;
-    //}
-
     void Update()
     {
         if (srcObj != null && dstObj != null && srcObj.Name != dstObj.Name)
@@ -81,22 +61,10 @@ public class GameGenField : MonoBehaviour
             IsActive = srcObj.Swap(dstObj);
             if (!IsActive)
             {
-                srcObj = null;
+               // srcObj = null;
                 dstObj = null;
             }
         }
-        //if (dstObj != null)
-        //{
-        //    if(dstObj.Swap(srcObj))
-        //    {
-        //        dstObj = null;
-        //    }
-        //}
-
-        //if (_move)
-        //{
-        //    MoveMethod();
-        //}
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -180,61 +148,6 @@ public class GameGenField : MonoBehaviour
         //   this.DoSomethingInAWhile();
 
     }
-
-    //private void  MoveMethod()
-    //{
-    //    if (this.srcObj != null && this.fixDstPos != this.fixSrcPos)
-    //    {
-    //        var u = this.MoveTo(this.srcObj, this.fixDstPos);
-    //        u &= this.MoveTo(this.dstObj, this.fixSrcPos);
-    //        if (!u)
-    //        {
-    //            this.Clean();
-    //           // this._move = false;
-    //        }
-    //    }
-    //}
-
-    //private void Clean()
-    //{
-
-    //    srcObj.GetComponent<UnitController>().State = UnitState.Idle;
-    //    dstObj.GetComponent<UnitController>().State = UnitState.Idle;
-    //    //srcObj = null;
-    //    //dstObj = null;
-    //    fixDstPos = Vector3.zero;
-    //    fixSrcPos = Vector3.zero;
-    //}
-
-    GameObject testRightGet(Collider2D hit)
-    {
-        var hitNew = RayCastCollider(hit, hit.transform.right);
-        //for (int i = 0; i < 4; i++)
-        //{
-        if (hitNew.collider != null)// && hit.collider.name == hitNew.collider.name)
-        {
-            return hitNew.collider.gameObject;
-        }
-        //}
-        return null;
-    }
-
-
-    //private void DoSomethingInAWhile()
-    //{
-    //    Vector2 prev = Vector2.zero;
-    //    foreach (var vector21 in this.lst)
-    //    {
-    //        if (prev == Vector2.zero)
-    //        {
-    //            prev = vector21;
-    //        }
-    //        Debug.DrawLine(prev, vector21);
-    //        //Debug.DrawLine(Vector2.zero, vector21);
-    //    }
-    //    //    Debug.DrawLine(Vector2.up, vector2);
-    //}
-
 
     void gameNormal(RaycastHit2D hit)
     {
@@ -496,9 +409,15 @@ public class GameGenField : MonoBehaviour
             balls.Add(ball.GetInstanceID(), ball);
         }
     }
+
     private void addMouseUp(UnitController obj)
     {
-        // Clean();
+        if (!IsActive)
+        {
+            srcObj = null;
+            //dstObj = null;
+ //           IsActive = false;
+        }
     }
 
     private void addMouseDrag(UnitController obj)
