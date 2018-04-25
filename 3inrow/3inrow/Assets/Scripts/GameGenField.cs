@@ -36,13 +36,13 @@ public class GameGenField : MonoBehaviour
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
 
-    private GameObject srcObj;
-    private GameObject dstObj;
+    private UnitController srcObj;
+    private UnitController dstObj;
 
-    private Vector3 fixSrcPos;
-    private Vector3 fixDstPos;
+    //private Vector3 fixSrcPos;
+    //private Vector3 fixDstPos;
 
-   // private bool _move;
+    private bool IsActive;
 
     void Start()
     {
@@ -58,27 +58,45 @@ public class GameGenField : MonoBehaviour
 
     void FixedUpdate()
     {
-
+       
     }
 
 
-    bool MoveTo(GameObject obj, Vector3 destination)
-    {
-        if (obj.transform.position != destination)
-        {
-            Vector3 nextPosition = Vector3.MoveTowards(obj.transform.position, destination, 2f * Time.deltaTime );
-            obj.transform.position = nextPosition;
-            return true;
-        }
+    //bool MoveTo(GameObject obj, Vector3 destination)
+    //{
+    //    if (obj.transform.position != destination)
+    //    {
+    //        Vector3 nextPosition = Vector3.MoveTowards(obj.transform.position, destination, 2f * Time.deltaTime);
+    //        obj.transform.position = nextPosition;
+    //        return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     void Update()
     {
+
+        if (srcObj != null && dstObj != null && srcObj.gameObject.GetInstanceID() != dstObj.gameObject.GetInstanceID())
+        {
+            IsActive = srcObj.Swap(dstObj);
+            if (!IsActive)
+            {
+                srcObj = null;
+                dstObj = null;
+            }
+        }
+        //if (dstObj != null)
+        //{
+        //    if(dstObj.Swap(srcObj))
+        //    {
+        //        dstObj = null;
+        //    }
+        //}
+
         //if (_move)
         //{
-            MoveMethod();
+        //    MoveMethod();
         //}
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
@@ -164,30 +182,30 @@ public class GameGenField : MonoBehaviour
 
     }
 
-    private void  MoveMethod()
-    {
-        if (this.srcObj != null && this.fixDstPos != this.fixSrcPos)
-        {
-            var u = this.MoveTo(this.srcObj, this.fixDstPos);
-            u &= this.MoveTo(this.dstObj, this.fixSrcPos);
-            if (!u)
-            {
-                this.Clean();
-               // this._move = false;
-            }
-        }
-    }
+    //private void  MoveMethod()
+    //{
+    //    if (this.srcObj != null && this.fixDstPos != this.fixSrcPos)
+    //    {
+    //        var u = this.MoveTo(this.srcObj, this.fixDstPos);
+    //        u &= this.MoveTo(this.dstObj, this.fixSrcPos);
+    //        if (!u)
+    //        {
+    //            this.Clean();
+    //           // this._move = false;
+    //        }
+    //    }
+    //}
 
-    private void Clean()
-    {
+    //private void Clean()
+    //{
 
-        srcObj.GetComponent<UnitController>().State = UnitState.Idle;
-        dstObj.GetComponent<UnitController>().State = UnitState.Idle;
-        //srcObj = null;
-        //dstObj = null;
-        fixDstPos = Vector3.zero;
-        fixSrcPos = Vector3.zero;
-    }
+    //    srcObj.GetComponent<UnitController>().State = UnitState.Idle;
+    //    dstObj.GetComponent<UnitController>().State = UnitState.Idle;
+    //    //srcObj = null;
+    //    //dstObj = null;
+    //    fixDstPos = Vector3.zero;
+    //    fixSrcPos = Vector3.zero;
+    //}
 
     GameObject testRightGet(Collider2D hit)
     {
@@ -473,47 +491,58 @@ public class GameGenField : MonoBehaviour
         {
             var controller = ball.transform.GetChild(0).GetComponent<UnitController>();
             controller.addMouseDown(addMouseDown);
-         //   controller.addMouseDrag(addMouseDrag);
+            controller.addMouseDrag(addMouseDrag);
             controller.addMouseUp(addMouseUp);
             controller.addMouseEnter(addMouseEnter);
             balls.Add(ball.GetInstanceID(), ball);
         }
     }
-
-    private void addMouseEnter(UnitController obj)
+    private void addMouseUp(UnitController obj)
     {
-        dstObj = obj.gameObject;
-        if (srcObj != null)
+        // Clean();
+    }
+
+    private void addMouseDrag(UnitController obj)
+    {
+        if (!IsActive)
         {
-            if(!obj.IsDragged && !this.srcObj.GetComponent<UnitController>().IsDragged)
-            fixDstPos = dstObj.transform.position;
-            fixSrcPos = srcObj.transform.position;
-            if (fixSrcPos != fixDstPos)
-            {
-                var srcit = Physics2D.Raycast(fixSrcPos, Vector2.zero);
-                var dsthit = Physics2D.Raycast(fixDstPos, Vector2.zero);
-                if (srcit.collider != null && dsthit.collider != null)
-                {
-                  //  _move = true;
-                    obj.State = UnitState.Moved;
-                    this.srcObj.GetComponent<UnitController>().State = UnitState.Dragged;
-                }
-            }
+            srcObj = obj;
         }
     }
 
-    private void addMouseUp(UnitController obj)
-    {
-        Clean();
-    }
-
-    //private void addMouseDrag(UnitController obj)
-    //{
-    //}
-
     private void addMouseDown(UnitController obj)
     {
-        if(!obj.IsDragged)
-        srcObj = obj.gameObject;
+        if (!IsActive)
+        {
+            srcObj = obj;
+        }
     }
+    private void addMouseEnter(UnitController obj)
+    {
+        if (!IsActive)
+        {
+            dstObj = obj;
+        }
+
+        //dstObj = obj.gameObject;
+        //if (srcObj != null)
+        //{
+        //    if(!obj.IsDragged && !this.srcObj.GetComponent<UnitController>().IsDragged)
+        //    fixDstPos = dstObj.transform.position;
+        //    fixSrcPos = srcObj.transform.position;
+        //    if (fixSrcPos != fixDstPos)
+        //    {
+        //        var srcit = Physics2D.Raycast(fixSrcPos, Vector2.zero);
+        //        var dsthit = Physics2D.Raycast(fixDstPos, Vector2.zero);
+        //        if (srcit.collider != null && dsthit.collider != null)
+        //        {
+        //          //  _move = true;
+        //            obj.State = UnitState.Moved;
+        //            this.srcObj.GetComponent<UnitController>().State = UnitState.Dragged;
+        //        }
+        //    }
+        //}
+    }
+
+
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,20 +17,20 @@ public class UnitController : MonoBehaviour
 
     public delegate void CallBack(UnitController obj);
     private CallBack onMouseDown;
-    //private CallBack onMouseDrag;
+    private CallBack onMouseDrag;
     private CallBack onMouseUP;
     private CallBack onMouseEnter;
 
-    public bool IsDragged
-    {
-        get
-        {
-            return this.State == UnitState.Dragged || this.State == UnitState.Moved;
-        }
-    }
+    //public bool IsDragged
+    //{
+    //    get
+    //    {
+    //        return this.State == UnitState.Dragged || this.State == UnitState.Moved;
+    //    }
+    //}
 
     public Animator animator;
-    private string _name = Guid.NewGuid().ToString("N");
+    private string _name;
     private string OnIdleAnim = "units_idle_01";
     private string OnMouseMoveAnim = "units_moved_01";
     private string OnMouseDragAnim = "units_select_01";
@@ -40,14 +41,16 @@ public class UnitController : MonoBehaviour
     private Vector3 screenPoint;
     private Collider currentCollider;
 
+    private Vector3 swapPosition;
+
     public void addMouseDown(CallBack callback)
     {
         onMouseDown += callback;
     }
-    //public void addMouseDrag(CallBack callback)
-    //{
-    //    onMouseDrag += callback;
-    //}
+    public void addMouseDrag(CallBack callback)
+    {
+        onMouseDrag += callback;
+    }
     public void addMouseUp(CallBack callback)
     {
         onMouseUP += callback;
@@ -58,6 +61,7 @@ public class UnitController : MonoBehaviour
         onMouseEnter += callback;
     }
 
+    public bool IsActive;
 
     void Start()
     {
@@ -69,49 +73,54 @@ public class UnitController : MonoBehaviour
         {
             currentCollider = this.gameObject.GetComponent<Collider>();
         }
+
+        _name = this.gameObject.name + Guid.NewGuid().ToString("N");
+
     }
 
     void OnMouseEnter()
     {
-        State = UnitState.Selected;
+        // State = UnitState.Selected;
 
-        if (!this.IsDragged)
-        {
-            onMouseEnter(this);
-        }
+        //if (!this.IsDragged)
+        //{
+        Debug.Log(name);
+        onMouseEnter(this);
+        //}
     }
 
     void OnMouseDown()
     {
-        State = UnitState.Dragged;
-
-        if (!this.IsDragged)
-        {
+        //if (!this.IsDragged)
+        //{
+        Debug.Log(name);
             onMouseDown(this);
-        }
+        //    State = UnitState.Dragged;
+        //}
     }
 
 
     void OnMouseUp()
     {
-        State = UnitState.Idle;
+        Debug.Log(name);
         onMouseUP(this);
+      //  State = UnitState.Idle;
     }
 
     void OnMouseOver()
     {
-        if (State == UnitState.Idle)
-        {
-            State = UnitState.Selected;
-        }
+        //if (State == UnitState.Idle)
+        //{
+        //    State = UnitState.Selected;
+        //}
     }
 
     void OnMouseExit()
     {
-        if (State == UnitState.Selected)
-        {
-            State = UnitState.Idle;
-        }
+        //if (State == UnitState.Selected)
+        //{
+        //    State = UnitState.Idle;
+        //}
     }
 
 
@@ -143,29 +152,62 @@ public class UnitController : MonoBehaviour
 
     void Update()
     {
-        switch (State)
+        //switch (State)
+        //{
+        //    case UnitState.Selected:
+        //        animator.SetBool("Selected", true);
+        //        animator.SetBool("Drag", false);
+        //        animator.SetBool("Moved", false);
+        //        break;
+        //    case UnitState.Dragged:
+        //        animator.SetBool("Drag", true);
+        //        animator.SetBool("Selected", false);
+        //        animator.SetBool("Moved", false);
+        //        break;
+        //    case UnitState.Moved:
+        //        animator.SetBool("Moved", true);
+        //        animator.SetBool("Drag", false);
+        //        animator.SetBool("Selected", false);
+        //        break;
+        //    default:
+        //        animator.SetBool("Selected", false);
+        //        animator.SetBool("Drag", false);
+        //        animator.SetBool("Moved", false);
+        //        break;
+        //}
+
+    }
+
+    public void SetSwapPosition(Vector3 swapPos)
+    {
+        if (IsActive)
         {
-            case UnitState.Selected:
-                animator.SetBool("Selected", true);
-                animator.SetBool("Drag", false);
-                animator.SetBool("Moved", false);
-                break;
-            case UnitState.Dragged:
-                animator.SetBool("Drag", true);
-                animator.SetBool("Selected", false);
-                animator.SetBool("Moved", false);
-                break;
-            case UnitState.Moved:
-                animator.SetBool("Moved", true);
-                animator.SetBool("Drag", false);
-                animator.SetBool("Selected", false);
-                break;
-            default:
-                animator.SetBool("Selected", false);
-                animator.SetBool("Drag", false);
-                animator.SetBool("Moved", false);
-                break;
+            return;
         }
 
+        swapPosition = swapPos;
+        IsActive = true;
+    }
+
+    public bool Swap(UnitController destination)
+    {
+        SetSwapPosition(destination.transform.position);
+        destination.SetSwapPosition(transform.position);
+        MoveTo();
+        destination.MoveTo();
+        return IsActive;
+    }
+
+    public void MoveTo()
+    {
+        var destination = swapPosition;
+        if (transform.position != destination)
+        {
+            Vector3 nextPosition = Vector3.MoveTowards(transform.position, destination, 2f * Time.deltaTime);
+            transform.position = nextPosition;
+            return;
+        }
+
+        IsActive = false;
     }
 }
