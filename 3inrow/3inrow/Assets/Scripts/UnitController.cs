@@ -30,12 +30,12 @@ public class UnitController : MonoBehaviour
     //}
 
     public Animator animator;
-    private string _name;
+    public string Name { get; private set; }
     private string OnIdleAnim = "units_idle_01";
     private string OnMouseMoveAnim = "units_moved_01";
     private string OnMouseDragAnim = "units_select_01";
     private string OnSelectedAnim = "unit_mouse_inverted_01";
-    public  UnitState State = UnitState.Idle;
+    public UnitState State = UnitState.Idle;
 
     private RaycastHit2D srcDrag;
     private Vector3 screenPoint;
@@ -74,8 +74,7 @@ public class UnitController : MonoBehaviour
             currentCollider = this.gameObject.GetComponent<Collider>();
         }
 
-        _name = this.gameObject.name + Guid.NewGuid().ToString("N");
-
+        Name = string.Format("{0}_{1:N}", this.gameObject.name, Guid.NewGuid());
     }
 
     void OnMouseEnter()
@@ -84,7 +83,6 @@ public class UnitController : MonoBehaviour
 
         //if (!this.IsDragged)
         //{
-        Debug.Log(name);
         onMouseEnter(this);
         //}
     }
@@ -93,8 +91,7 @@ public class UnitController : MonoBehaviour
     {
         //if (!this.IsDragged)
         //{
-        Debug.Log(name);
-            onMouseDown(this);
+        onMouseDown(this);
         //    State = UnitState.Dragged;
         //}
     }
@@ -102,9 +99,8 @@ public class UnitController : MonoBehaviour
 
     void OnMouseUp()
     {
-        Debug.Log(name);
         onMouseUP(this);
-      //  State = UnitState.Idle;
+        //  State = UnitState.Idle;
     }
 
     void OnMouseOver()
@@ -191,11 +187,57 @@ public class UnitController : MonoBehaviour
 
     public bool Swap(UnitController destination)
     {
-        SetSwapPosition(destination.transform.position);
-        destination.SetSwapPosition(transform.position);
+
+        //if (IsRayCastHit(gameObject, destination.gameObject))
+        //{
+        if (!IsActive)
+        {
+            if (IsRayCastHit(gameObject, destination.gameObject))
+            {
+                SetSwapPosition(destination.transform.position);
+                destination.SetSwapPosition(transform.position);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         MoveTo();
         destination.MoveTo();
         return IsActive;
+        // }
+
+        // return false;
+    }
+
+    private bool IsRayCastHit(GameObject source, GameObject destination)
+    {
+        var fromPosition = source.transform.position;
+        var toPosition = destination.transform.position;
+        var direction = toPosition - fromPosition;
+        if (Math.Abs(direction.x) > 0.01f && Math.Abs(direction.y) > 0.01f)
+        {
+            return false;
+        }
+
+        if (Math.Abs(direction.x) > 1.5 || Math.Abs(direction.y) > 1.5)
+        {
+            return false;
+        }
+
+        //source.GetComponentInParent<Collider2D>().enabled = false;
+        //var hit = Physics2D.Raycast(source.transform.position, direction);
+        //source.GetComponentInParent<Collider2D>().enabled = true;
+
+        //var hitName = hit.collider.transform.GetChild(0).GetComponent<UnitController>().Name;
+        //var destName = destination.GetComponent<UnitController>().Name;
+        //if (destName == hitName)
+        //{
+        //    return true;
+        //}
+
+        return true;
     }
 
     public void MoveTo()
@@ -203,7 +245,7 @@ public class UnitController : MonoBehaviour
         var destination = swapPosition;
         if (transform.position != destination)
         {
-            Vector3 nextPosition = Vector3.MoveTowards(transform.position, destination, 2f * Time.deltaTime);
+            var nextPosition = Vector3.MoveTowards(transform.position, destination, 4f * Time.deltaTime);
             transform.position = nextPosition;
             return;
         }

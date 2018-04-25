@@ -76,8 +76,7 @@ public class GameGenField : MonoBehaviour
 
     void Update()
     {
-
-        if (srcObj != null && dstObj != null && srcObj.gameObject.GetInstanceID() != dstObj.gameObject.GetInstanceID())
+        if (srcObj != null && dstObj != null && srcObj.Name != dstObj.Name)
         {
             IsActive = srcObj.Swap(dstObj);
             if (!IsActive)
