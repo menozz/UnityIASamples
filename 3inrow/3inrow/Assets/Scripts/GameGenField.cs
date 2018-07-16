@@ -6,13 +6,6 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
-public enum States
-{
-    None,
-    SwapActive,
-    RollbackActive
-}
-
 public class GameGenField : MonoBehaviour
 {
     public GameObject blue;
@@ -22,11 +15,14 @@ public class GameGenField : MonoBehaviour
     public GameObject attack;
     public GameObject defence;
 
-    public float startX = 0f;
+//    public float startX = 0f;
     public const int ballCount = 8;
     private readonly float startY = ballCount + startHeight;
+    //private readonly float startY = 0;
     private const float startHeight = 1f;
     private const float Precision = 0.0001f;
+    public int MainScrollSpeed = 10;
+    public int UnitReturnSpeed = 20;
 
     float nextUsage;
     public float firstDelay = 1.8f;
@@ -43,39 +39,23 @@ public class GameGenField : MonoBehaviour
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
 
-    //private UnitController srcObj;
-    //private UnitController dstObj;
-
-  //  private bool IsActive;
-   // private bool IsRotated;
-    ///private States CurrentState;
-    private SwapController _swapController;
-
     void Start()
     {
-        _swapController = new SwapController();
         nextUsage = Time.time + firstDelay;
-        deletedObj = GameObject.Find("deleteObj");
         initGameField();
-
         goalLabel = GameObject.Find("GoalLabel") as GameObject;
         shagLabel = GameObject.Find("ShagLabel") as GameObject;
         goalLabel.GetComponent<Text>().text = goal + "";
         shagLabel.GetComponent<Text>().text = shags + "";
     }
 
+    void FixedUpdate()
+    {
+
+    }
+
     void Update()
     {
-        _swapController.Swap();
-        //if (srcObj != null && dstObj != null && srcObj.Name != dstObj.Name)
-        //{
-        //    CurrentState = srcObj.Swap(dstObj);
-        //    {
-        //    //    IsRotated = true;
-        //         srcObj = null;
-        //         dstObj = null;
-        //    }
-        //}
         //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -89,74 +69,12 @@ public class GameGenField : MonoBehaviour
         //if (Input.GetMouseButtonDown(0))
         //{
         //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    var hit= Physics2D.Raycast(worldPoint, Vector2.zero);
+        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
         //    if (hit.collider != null)
         //    {
         //        srchit = hit.collider;
         //    }
         //}
-
-        //if (Input.GetAxis("Mouse X") > 0)
-        //{
-        //    //Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    //var srchit = Physics2D.Raycast(worldPoint, Vector2.zero);
-
-        //    //var srchit = Physics2D.Raycast(transform.position, Vector2.zero);
-        //    if (srchit!=null)
-        //    {
-        //        var gobj = testRightGet(srchit);
-        //        Debug.Log(gobj.name);
-
-        //        //    var tmp = srchit.transform.position;
-        //        var curSrc = new Vector2(srchit.transform.position.x, srchit.transform.position.y);
-        //        //var newPosit = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
-        //        var curTrgt = new Vector2(gobj.transform.position.x, gobj.transform.position.y);
-        //        srchit.transform.position = Vector2.MoveTowards(curSrc, curTrgt, 0.5f);
-        //        gobj.transform.position = Vector2.MoveTowards(curTrgt, curSrc, 0.5f);
-
-        //        //Debug.Log(gobj.transform.position);
-
-        //        //Vector2 dstworldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //        //var dsthit = Physics2D.Raycast(dstworldPoint, Vector2.zero);
-        //        //if (dsthit.collider != null)
-        //        //{
-
-        //        //}
-        //    }
-        //}
-
-        //if (Input.GetAxis("Mouse X") < 0 || (Input.GetAxis("Mouse X") > 0))
-        //{
-        //   Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-        //    if (hit.collider != null && hit.transform.childCount > 0 && hit.transform.GetChild(0).tag == "unit")
-        //    {
-        //        var children = hit.transform.GetChild(0);
-        //        //   Debug.Log("animation");
-        //        // var t = hit.collider.gameObject;
-        //        var u = children.GetComponent<circle_controller>();
-        //        //  var h = (circle_controller)FindObjectOfType(typeof(circle_controller));
-        //        if (u != null)
-        //        {
-        //            //    u.MouseMove();
-
-        //        }
-        //        //    hit.collider.gameObject.transform.GetComponent<circle_controller>().MouseMove(true);
-        //    }
-        //}
-
-
-        //if (Input.M(0) && Time.time > nextUsage)
-        //{
-        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-
-        //    if (hit.collider != null)
-        //    {
-        //        gameNormal(hit);
-        //    }
-        //}
-
-        //   this.DoSomethingInAWhile();
 
     }
 
@@ -275,7 +193,7 @@ public class GameGenField : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
             if (hit.collider == null)
             {
-                setRNDCircle(x, y);
+                setRNDCircle(0, new Vector2(x, y), new Vector2(x, y));
             }
 
         }
@@ -300,7 +218,7 @@ public class GameGenField : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
         if (hit.collider == null)
         {
-            setRNDCircle(x, y);
+            setRNDCircle(0, new Vector2(x , y), new Vector2(x,y));
         }
     }
 
@@ -374,108 +292,54 @@ public class GameGenField : MonoBehaviour
 
     void initGameField()
     {
+        int id = 0;
         for (int y = 0; y < ballCount; y++)
         {
             for (int x = 0; x < ballCount; x++)
             {
-                setRNDCircle(startX + x, startY + y);
+                setRNDCircle(id, new Vector2(x, y), new Vector2(x, startY + y));
+                id++;
             }
         }
     }
 
-    void setRNDCircle(float x, float y)
+    void setRNDCircle(int id, Vector2 final, Vector2 spawn)
     {
         int rndN = Random.Range(1, 7);
-        var vector = new Vector2(x, y);
+        //var vector = new Vector2(x, y);
+        var start = new Vector2(100, 100);
         GameObject ball = null;
         switch (rndN)
         {
             case 1:
-                ball = Instantiate(blue, vector, Quaternion.identity);
+                ball = Instantiate(blue, start, Quaternion.identity);
                 break;
             case 2:
-                ball = Instantiate(yellow, vector, Quaternion.identity);
+                ball = Instantiate(yellow, start, Quaternion.identity);
                 break;
             case 3:
-                ball = Instantiate(green, vector, Quaternion.identity);
+                ball = Instantiate(green, start, Quaternion.identity);
                 break;
             case 4:
-                ball = Instantiate(red, vector, Quaternion.identity);
+                ball = Instantiate(red, start, Quaternion.identity);
                 break;
             case 5:
-                ball = Instantiate(attack, vector, Quaternion.identity);
+                ball = Instantiate(attack, start, Quaternion.identity);
                 break;
             case 6:
-                ball = Instantiate(defence, vector, Quaternion.identity);
+                ball = Instantiate(defence, start, Quaternion.identity);
                 break;
         }
 
         if (ball != null)
         {
-            var controller = ball.transform.GetChild(0).GetComponent<UnitController>();
-            controller.addMouseDown(addMouseDown);
-            controller.addMouseDrag(addMouseDrag);
-            controller.addMouseUp(addMouseUp);
-            controller.addMouseEnter(addMouseEnter);
-            balls.Add(ball.GetInstanceID(), ball);
+            var controller = ball.GetComponent<BallController>();
+            controller.Id = id;
+            controller.FinalPosition = final;
+            controller.RespawnPosition = spawn;
+            controller.MainScrollSpeed = MainScrollSpeed;
+            controller.UnitReturnSpeed = UnitReturnSpeed;
+            balls.Add(id, ball);
         }
-    }
-
-    private void addMouseUp(UnitController obj)
-    {
-        if (!_swapController.IsBusy)
-        {
-            _swapController = new SwapController();
-        }
-        //if (IsRotated)
-        //{
-        //    IsActive = false;
-        //    IsRotated = false;
-        //    //   srcObj = null;
-        //    dstObj = null;
-        //}
-        //if (!IsActive)
-        //{
-        //    srcObj = null;
-        //}
-
-    }
-
-    private void addMouseDrag(UnitController obj)
-    {
-        if (!_swapController.IsBusy)
-        {
-            _swapController.Set1(obj);
-        }
-    }
-
-    private void addMouseDown(UnitController obj)
-    {
-        //if (!IsActive && !IsRotated)
-        //{
-        //    srcObj = obj;
-        //}
-    }
-    private void addMouseEnter(UnitController obj)
-    {
-      //  obj.RollBack();
-      
-        if (!_swapController.IsBusy)
-        {
-            _swapController.Set2(obj);
-        }
-
-        //if (IsRotated)
-        //{
-        //    if (dstObj.Name == obj.Name)
-        //    {
-        //        // Debug.Log("rotate");
-        //        dstObj = obj;
-        //        ////var tmp = srcObj;
-        //        ////srcObj = dstObj;
-        //        ////dstObj = tmp;
-        //        IsRotated = false;
-        //    }
-        //}
     }
 }
