@@ -2,11 +2,13 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Collections;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
-public class GameGenField : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public GameObject blue;
     public GameObject yellow;
@@ -34,7 +36,13 @@ public class GameGenField : MonoBehaviour
     public int shags = 15;
 
     GameObject goalLabel, shagLabel;
-    private Dictionary<int, GameObject> balls = new Dictionary<int, GameObject>();
+
+    [ReadOnly]
+    public Dictionary<int, GameObject> Units = new Dictionary<int, GameObject>();
+
+    public List<BallController> VerticalUnits;
+    public List<BallController> HorizontalUnits;
+
 
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
@@ -126,7 +134,7 @@ public class GameGenField : MonoBehaviour
         {
             lst.Add(deletedObj.transform.GetChild(i).gameObject.transform.position);
             var toRemove = deletedObj.transform.GetChild(i).gameObject;
-            balls.Remove(toRemove.GetInstanceID());
+            Units.Remove(toRemove.GetInstanceID());
             Destroy(toRemove);
         }
         respawnNewCircles(lst);
@@ -145,7 +153,7 @@ public class GameGenField : MonoBehaviour
         for (int i = 0; i < deletedObj.transform.childCount; i++)
         {
             var toRemove = deletedObj.transform.GetChild(i).gameObject;
-            balls.Remove(toRemove.GetInstanceID());
+            Units.Remove(toRemove.GetInstanceID());
             Destroy(toRemove);
         }
         respawnNewCircles(hit.transform.position);
@@ -333,13 +341,20 @@ public class GameGenField : MonoBehaviour
 
         if (ball != null)
         {
-            var controller = ball.GetComponent<BallController>();
-            controller.Id = id;
-            controller.FinalPosition = final;
-            controller.RespawnPosition = spawn;
-            controller.MainScrollSpeed = MainScrollSpeed;
-            controller.UnitReturnSpeed = UnitReturnSpeed;
-            balls.Add(id, ball);
+            ball.GetComponent<BallController>().Initialize(this, id, final, spawn);
         }
+    }
+
+    public void MakeVertHorz(Vector3 finalPosition)
+    {
+        VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).Select(g=>g.GetComponent<BallController>()).ToList();
+        HorizontalUnits = Units.Values.Where(g => g.transform.position.y == finalPosition.y).Select(g => g.GetComponent<BallController>()).ToList();
+    }
+
+    public void SwapBufferPosition(BallController source, BallController target)
+    {
+        var tmp = source.BufferPositon;
+        source.BufferPositon = target.BufferPositon;
+        target.MoveToPosition(tmp);
     }
 }

@@ -13,6 +13,8 @@ public class BallController : MonoBehaviour
     [ReadOnly] public int MainScrollSpeed;
     [ReadOnly] public int UnitReturnSpeed;
 
+    [ReadOnly] public GameManager GameManager;
+
     private int _swapSpeed = 4;
 
     private Transform _transform;
@@ -30,8 +32,6 @@ public class BallController : MonoBehaviour
     private float distance = 3f;
     private Collider2D _collider;
 
-    private List<BallController> _vertical;
-    private List<BallController> _horizontal;
 
     void Start()
     {
@@ -87,12 +87,7 @@ public class BallController : MonoBehaviour
             //_selectedPosition = transform.position;
             _isDragging = true;
             _collider.enabled = false;
-            var up = Physics2D.RaycastAll(FinalPosition, Vector2.up);
-            var down = Physics2D.RaycastAll(FinalPosition, Vector2.down);
-            var left = Physics2D.RaycastAll(FinalPosition, Vector2.left);
-            var right = Physics2D.RaycastAll(FinalPosition, Vector2.right);
-            _horizontal = left.Union(right).Select(g => g.collider.gameObject.GetComponent<BallController>()).ToList();
-            _vertical = up.Union(down).Select(g => g.collider.gameObject.GetComponent<BallController>()).ToList();
+            GameManager.MakeVertHorz(FinalPosition);
         }
 
         var curPosition = Camera.main.ScreenToWorldPoint(CurScreenPoint()) + _offset;
@@ -105,39 +100,36 @@ public class BallController : MonoBehaviour
             if (hit.collider != null)
             {
                 var controller = hit.collider.gameObject.GetComponent<BallController>();
-                if (_horizontal.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
+                if (GameManager.HorizontalUnits.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
                 {
-                    _vertical.ForEach(g => g.Revert());
-                    SetBufferPosition(controller, hit);
+                    GameManager.VerticalUnits.ForEach(g => g.SetBufferToFinalPosition());
+                    GameManager.SwapBufferPosition(this, controller);
+                    //   SetBufferPosition(controller, hit);
 
                 }
-                if (_vertical.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
+                if (GameManager.VerticalUnits.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
                 {
-                    _horizontal.ForEach(g => g.Revert());
-                    SetBufferPosition(controller, hit);
+                    GameManager.HorizontalUnits.ForEach(g => g.SetBufferToFinalPosition());
+                      GameManager.SwapBufferPosition(this, controller);
+                    //   SetBufferPosition(controller, hit);
                 }
             }
         }
     }
 
-    private void Revert()
+    private void SetBufferToFinalPosition()
     {
-        if (!IsMoving)
+        if (!IsMoving && !_isDragging) 
         {
-            BufferPositon = FinalPosition;
-            IsMoving = true;
+            if (!(Vector3.SqrMagnitude(BufferPositon - FinalPosition) < 0.0001))
+            {
+                BufferPositon = FinalPosition;
+                IsMoving = true;
+            }
         }
     }
 
-    private void SetBufferPosition(BallController controller, RaycastHit2D hit)
-    {
-        var tmp = controller.BufferPositon;
-        Debug.Log(string.Format(" tmp {0} / {1} / {2}", tmp, hit.collider.gameObject.transform, BufferPositon));
-        controller.MoveToPosition(BufferPositon);
-        BufferPositon = tmp;
-    }
-
-    private void MoveToPosition(Vector3 position)
+    public void MoveToPosition(Vector3 position)
     {
         if (!IsMoving)
         {
@@ -174,5 +166,16 @@ public class BallController : MonoBehaviour
     {
         // return Input.mousePosition;
         return new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
+    }
+
+    public void Initialize(GameManager gameManager, int id, Vector2 final, Vector2 spawn)
+    {
+        GameManager = gameManager;
+        Id = id;
+        FinalPosition = final;
+        RespawnPosition = spawn;
+        MainScrollSpeed = GameManager.MainScrollSpeed;
+        UnitReturnSpeed = GameManager.UnitReturnSpeed;
+        GameManager.Units.Add(id, gameObject);
     }
 }

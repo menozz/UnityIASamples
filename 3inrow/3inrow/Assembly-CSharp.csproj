@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BallController.cs" />
-    <Compile Include="Assets\Scripts\GameGenField.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/gitprojects/UnityIASamples/3inrow/3inrow/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
