@@ -65,16 +65,32 @@ public class BallController : MonoBehaviour
 
     //void OnMouseExit()
     //{
+
     //    if (!_isDragging)
+
     //    {
+
     //        Debug.Log("not draging, mouse exit " + transform);
+
     //    }
+
     //}
+
     void Update()
     {
         if (IsMoving)
         {
             StartCoroutine(Movement(_transform, BufferPositon, _swapSpeed));
+        }
+    }
+
+    void OnMouseUp()
+    {
+        if (_isDragging)
+        {
+            _isDragging = false;
+            _collider.enabled = true;
+            StartCoroutine(Movement(_transform, FinalPosition, UnitReturnSpeed));
         }
     }
 
@@ -117,18 +133,6 @@ public class BallController : MonoBehaviour
         }
     }
 
-    private void SetBufferToFinalPosition()
-    {
-        if (!IsMoving && !_isDragging) 
-        {
-            if (!(Vector3.SqrMagnitude(BufferPositon - FinalPosition) < 0.0001))
-            {
-                BufferPositon = FinalPosition;
-                IsMoving = true;
-            }
-        }
-    }
-
     public void MoveToPosition(Vector3 position)
     {
         if (!IsMoving)
@@ -138,13 +142,26 @@ public class BallController : MonoBehaviour
         }
     }
 
-    void OnMouseUp()
+    public void Initialize(GameManager gameManager, int id, Vector2 final, Vector2 spawn)
     {
-        if (_isDragging)
+        GameManager = gameManager;
+        Id = id;
+        FinalPosition = final;
+        RespawnPosition = spawn;
+        MainScrollSpeed = GameManager.MainScrollSpeed;
+        UnitReturnSpeed = GameManager.UnitReturnSpeed;
+        GameManager.Units.Add(id, gameObject);
+    }
+
+    private void SetBufferToFinalPosition()
+    {
+        if (!IsMoving && !_isDragging) 
         {
-            _isDragging = false;
-            _collider.enabled = true;
-            StartCoroutine(Movement(_transform, FinalPosition, UnitReturnSpeed));
+            if (!(Vector3.SqrMagnitude(BufferPositon - FinalPosition) < 0.0001))
+            {
+                BufferPositon = FinalPosition;
+                IsMoving = true;
+            }
         }
     }
 
@@ -166,16 +183,5 @@ public class BallController : MonoBehaviour
     {
         // return Input.mousePosition;
         return new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
-    }
-
-    public void Initialize(GameManager gameManager, int id, Vector2 final, Vector2 spawn)
-    {
-        GameManager = gameManager;
-        Id = id;
-        FinalPosition = final;
-        RespawnPosition = spawn;
-        MainScrollSpeed = GameManager.MainScrollSpeed;
-        UnitReturnSpeed = GameManager.UnitReturnSpeed;
-        GameManager.Units.Add(id, gameObject);
     }
 }

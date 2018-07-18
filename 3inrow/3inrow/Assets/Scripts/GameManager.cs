@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public GameObject attack;
     public GameObject defence;
 
-//    public float startX = 0f;
+    //    public float startX = 0f;
     public const int ballCount = 8;
     private readonly float startY = ballCount + startHeight;
     //private readonly float startY = 0;
@@ -226,7 +226,7 @@ public class GameManager : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
         if (hit.collider == null)
         {
-            setRNDCircle(0, new Vector2(x , y), new Vector2(x,y));
+            setRNDCircle(0, new Vector2(x, y), new Vector2(x, y));
         }
     }
 
@@ -347,12 +347,34 @@ public class GameManager : MonoBehaviour
 
     public void MakeVertHorz(Vector3 finalPosition)
     {
-        VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).Select(g=>g.GetComponent<BallController>()).ToList();
+        VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).Select(g => g.GetComponent<BallController>()).ToList();
         HorizontalUnits = Units.Values.Where(g => g.transform.position.y == finalPosition.y).Select(g => g.GetComponent<BallController>()).ToList();
     }
 
     public void SwapBufferPosition(BallController source, BallController target)
     {
+        var direction = target.FinalPosition - source.FinalPosition;
+        var distance = Vector2.Distance(target.FinalPosition, source.FinalPosition);
+        var objs = Physics2D.RaycastAll(source.FinalPosition, direction, distance);
+        for (int i = 0; i < objs.Length; i++)
+        {
+            if (i == 0)
+            {
+                continue;
+            }
+
+            if (i == objs.Length)
+            {
+                continue;
+            }
+
+            var prev = objs[i - 1].collider.gameObject.GetComponent<BallController>();
+            var next = objs[i].collider.gameObject.GetComponent<BallController>();
+            var temp = prev.BufferPositon;
+            prev.MoveToPosition(next.BufferPositon);
+            next.MoveToPosition(temp);
+        }
+
         var tmp = source.BufferPositon;
         source.BufferPositon = target.BufferPositon;
         target.MoveToPosition(tmp);
