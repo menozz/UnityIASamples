@@ -359,6 +359,11 @@ public class GameManager : MonoBehaviour
     {
         var direction = (target.BufferPositon - source.FinalPosition).normalized;
         var distance = Vector2.Distance(target.BufferPositon, source.FinalPosition);
+        if (distance < 0.001)
+        {
+            return;
+
+        }
         Debug.Log("_________________");
         Debug.Log("direction " + direction);
         Debug.Log("distance " + distance);
@@ -397,16 +402,16 @@ public class GameManager : MonoBehaviour
 
     public void CleanPositions()
     {
-        //foreach (var unit in Units.Values)
-        //{
-        //    unit.GetComponent<Collider2D>().enabled = false;
-        //}
-        //HorizontalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
-        //VerticalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
-        //foreach (var unit in Units.Values)
-        //{
-        //    unit.GetComponent<Collider2D>().enabled = true;
-        //}
+        foreach (var unit in Units.Values)
+        {
+            unit.GetComponent<BallController>().IsMoving = false;
+        }
+        HorizontalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+        VerticalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+        foreach (var unit in Units.Values)
+        {
+            unit.GetComponent<BallController>().IsMoving = true;
+        }
     }
 }
 

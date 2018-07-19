@@ -25,7 +25,7 @@ public class BallController : MonoBehaviour
 
      public Vector3 BufferPositon;
 
-    private bool IsMoving;
+    public bool IsMoving;
 
     private float distance = 3f;
     private Collider2D _collider;
@@ -36,15 +36,15 @@ public class BallController : MonoBehaviour
         _transform = GetComponent<Transform>();
         _collider = GetComponent<Collider2D>();
         _transform.position = RespawnPosition;
-        StartCoroutine(Movement(_transform, FinalPosition, MainScrollSpeed));
+        IsMoving = true;
         BufferPositon = FinalPosition;
-        //    _defaultPosition = FinalPosition;
+        StartCoroutine(Movement(_transform, BufferPositon, MainScrollSpeed));
     }
 
-    void Stop()
-    {
-        StopCoroutine("Movement");
-    }
+    //void Stop()
+    //{
+    //    StopCoroutine("Movement");
+    //}
 
     void OnMouseDown()
     {
@@ -145,7 +145,7 @@ public class BallController : MonoBehaviour
                     }
                     else
                     {
-                        GameManager.CleanPositions();
+                        //GameManager.CleanPositions();
                     }
                 }
             }
@@ -185,10 +185,10 @@ public class BallController : MonoBehaviour
         }
     }
 
-    private IEnumerator Movement(Transform currentTransform, Vector3 finalPosition, float speed)
+    public IEnumerator Movement(Transform currentTransform, Vector3 finalPosition, float speed)
     {
         float sqrRemainingDistance = (currentTransform.position - finalPosition).sqrMagnitude;
-        while (sqrRemainingDistance > float.Epsilon)
+        while (sqrRemainingDistance > float.Epsilon && IsMoving)
         {
             Vector2 towards = Vector2.MoveTowards(currentTransform.position, finalPosition, speed * Time.deltaTime);
             currentTransform.position = towards;
