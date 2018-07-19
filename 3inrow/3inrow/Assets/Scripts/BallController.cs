@@ -7,15 +7,14 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    [ReadOnly] public int Id;
-    [ReadOnly] public Vector3 RespawnPosition;
-    [ReadOnly] public Vector3 FinalPosition;
-    [ReadOnly] public int MainScrollSpeed;
-    [ReadOnly] public int UnitReturnSpeed;
+    public int Id;
+    public Vector3 RespawnPosition;
+    public Vector3 FinalPosition;
+    public float MainScrollSpeed;
+    public float UnitReturnSpeed;
+    public float SwapSpeed;
 
-    [ReadOnly] public GameManager GameManager;
-
-    private int _swapSpeed = 4;
+    public GameManager GameManager;
 
     private Transform _transform;
     private Vector3 _screenPoint;
@@ -24,8 +23,7 @@ public class BallController : MonoBehaviour
     private bool _isDragging;
     private bool _isSwapEnable;
 
-    //    private Vector3 _defaultPosition;
-    [NonSerialized] public Vector3 BufferPositon;
+     public Vector3 BufferPositon;
 
     private bool IsMoving;
 
@@ -41,6 +39,11 @@ public class BallController : MonoBehaviour
         StartCoroutine(Movement(_transform, FinalPosition, MainScrollSpeed));
         BufferPositon = FinalPosition;
         //    _defaultPosition = FinalPosition;
+    }
+
+    void Stop()
+    {
+        StopCoroutine("Movement");
     }
 
     void OnMouseDown()
@@ -76,11 +79,15 @@ public class BallController : MonoBehaviour
 
     //}
 
+    void FixedUpdate()
+    {
+      
+    }
     void Update()
     {
         if (IsMoving)
         {
-            StartCoroutine(Movement(_transform, BufferPositon, _swapSpeed));
+            StartCoroutine(Movement(_transform, BufferPositon, SwapSpeed));
         }
     }
 
@@ -91,6 +98,9 @@ public class BallController : MonoBehaviour
             _isDragging = false;
             _collider.enabled = true;
             StartCoroutine(Movement(_transform, FinalPosition, UnitReturnSpeed));
+            BufferPositon = FinalPosition;
+            GameManager.VerticalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+            GameManager.HorizontalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
         }
     }
 
@@ -98,12 +108,11 @@ public class BallController : MonoBehaviour
     {
         if (!_isDragging)
         {
-
-            //_defaultPosition = transform.position;
-            //_selectedPosition = transform.position;
             _isDragging = true;
             _collider.enabled = false;
             GameManager.MakeVertHorz(FinalPosition);
+            //GameManager.VerticalUnits.ForEach(g => g.SetBufferToFinalPosition());
+            //GameManager.HorizontalUnits.ForEach(g => g.SetBufferToFinalPosition());
         }
 
         var curPosition = Camera.main.ScreenToWorldPoint(CurScreenPoint()) + _offset;
@@ -116,18 +125,28 @@ public class BallController : MonoBehaviour
             if (hit.collider != null)
             {
                 var controller = hit.collider.gameObject.GetComponent<BallController>();
-                if (GameManager.HorizontalUnits.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
+                //if (!controller.IsMoving)
                 {
-                    GameManager.VerticalUnits.ForEach(g => g.SetBufferToFinalPosition());
-                    GameManager.SwapBufferPosition(this, controller);
-                    //   SetBufferPosition(controller, hit);
+                    if (GameManager.HorizontalUnits.Exists(g => g.GetComponent<BallController>().Id == controller.Id))
+                    {
 
-                }
-                if (GameManager.VerticalUnits.Exists(g => g.Id == controller.Id) && !controller.IsMoving)
-                {
-                    GameManager.HorizontalUnits.ForEach(g => g.SetBufferToFinalPosition());
-                      GameManager.SwapBufferPosition(this, controller);
-                    //   SetBufferPosition(controller, hit);
+                        GameManager.VerticalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+                        //GameManager.HorizontalUnits.ForEach(g => g.SetBufferToFinalPosition());
+                        GameManager.SwapBufferPosition(this, controller);
+                        //   SetBufferPosition(controller, hit);
+
+                    }
+                    else if (GameManager.VerticalUnits.Exists(g => g.GetComponent<BallController>().Id == controller.Id))
+                    {
+                        GameManager.HorizontalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+                        //GameManager.VerticalUnits.ForEach(g => g.SetBufferToFinalPosition());
+                        GameManager.SwapBufferPosition(this, controller);
+                        //   SetBufferPosition(controller, hit);
+                    }
+                    else
+                    {
+                        GameManager.CleanPositions();
+                    }
                 }
             }
         }
@@ -150,12 +169,13 @@ public class BallController : MonoBehaviour
         RespawnPosition = spawn;
         MainScrollSpeed = GameManager.MainScrollSpeed;
         UnitReturnSpeed = GameManager.UnitReturnSpeed;
+        SwapSpeed = GameManager.SwapSpeed;
         GameManager.Units.Add(id, gameObject);
     }
 
-    private void SetBufferToFinalPosition()
+    public void SetBufferToFinalPosition()
     {
-        if (!IsMoving && !_isDragging) 
+        if (!_isDragging) 
         {
             if (!(Vector3.SqrMagnitude(BufferPositon - FinalPosition) < 0.0001))
             {
@@ -165,7 +185,7 @@ public class BallController : MonoBehaviour
         }
     }
 
-    private IEnumerator Movement(Transform currentTransform, Vector3 finalPosition, int speed)
+    private IEnumerator Movement(Transform currentTransform, Vector3 finalPosition, float speed)
     {
         float sqrRemainingDistance = (currentTransform.position - finalPosition).sqrMagnitude;
         while (sqrRemainingDistance > float.Epsilon)
@@ -183,5 +203,13 @@ public class BallController : MonoBehaviour
     {
         // return Input.mousePosition;
         return new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
+    }
+}
+
+public static class Helper
+{
+    public static void Controller(this GameObject gameObject, Action<BallController> action)
+    {
+        action(gameObject.GetComponent<BallController>());
     }
 }

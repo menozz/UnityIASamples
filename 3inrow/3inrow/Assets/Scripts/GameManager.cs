@@ -23,8 +23,9 @@ public class GameManager : MonoBehaviour
     //private readonly float startY = 0;
     private const float startHeight = 1f;
     private const float Precision = 0.0001f;
-    public int MainScrollSpeed = 10;
-    public int UnitReturnSpeed = 20;
+    public float MainScrollSpeed = 10;
+    public float UnitReturnSpeed = 20;
+    public float SwapSpeed = 1;
 
     float nextUsage;
     public float firstDelay = 1.8f;
@@ -32,20 +33,23 @@ public class GameManager : MonoBehaviour
 
     GameObject deletedObj;
 
+        // private List<BallController> _rayCasted;
+
     int goal = 0;
     public int shags = 15;
 
     GameObject goalLabel, shagLabel;
 
-    [ReadOnly]
+    
     public Dictionary<int, GameObject> Units = new Dictionary<int, GameObject>();
 
-    public List<BallController> VerticalUnits;
-    public List<BallController> HorizontalUnits;
+    public List<GameObject> VerticalUnits;
+    public List<GameObject> HorizontalUnits;
 
 
     List<Vector2> lst = new List<Vector2>();
     private Collider2D srchit;
+    
 
     void Start()
     {
@@ -347,36 +351,62 @@ public class GameManager : MonoBehaviour
 
     public void MakeVertHorz(Vector3 finalPosition)
     {
-        VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).Select(g => g.GetComponent<BallController>()).ToList();
-        HorizontalUnits = Units.Values.Where(g => g.transform.position.y == finalPosition.y).Select(g => g.GetComponent<BallController>()).ToList();
+        VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).ToList();
+        HorizontalUnits = Units.Values.Where(g => g.transform.position.y == finalPosition.y).ToList();
     }
 
     public void SwapBufferPosition(BallController source, BallController target)
     {
-        var direction = target.FinalPosition - source.FinalPosition;
-        var distance = Vector2.Distance(target.FinalPosition, source.FinalPosition);
-        var objs = Physics2D.RaycastAll(source.FinalPosition, direction, distance);
-        for (int i = 0; i < objs.Length; i++)
+        var direction = (target.BufferPositon - source.FinalPosition).normalized;
+        var distance = Vector2.Distance(target.BufferPositon, source.FinalPosition);
+        Debug.Log("_________________");
+        Debug.Log("direction " + direction);
+        Debug.Log("distance " + distance);
+        Debug.Log("source " + source.FinalPosition);
+        Debug.Log("target " + target.BufferPositon);
+
+        var controllers = Physics2D.RaycastAll(source.FinalPosition, direction, distance).Select(g => g.collider.gameObject.GetComponent<BallController>()).ToList();
+
+        //if (_rayCasted != null)
+        //{
+        //    var u = _rayCasted.Except(controllers);
+        //    foreach (var collection in u)
+        //    {
+        //        collection.SetBufferToFinalPosition();
+        //    }
+        //}
+
+        var stackPosition = source.FinalPosition;
+        foreach (var controller in controllers)
         {
-            if (i == 0)
-            {
-                continue;
-            }
-
-            if (i == objs.Length)
-            {
-                continue;
-            }
-
-            var prev = objs[i - 1].collider.gameObject.GetComponent<BallController>();
-            var next = objs[i].collider.gameObject.GetComponent<BallController>();
-            var temp = prev.BufferPositon;
-            prev.MoveToPosition(next.BufferPositon);
-            next.MoveToPosition(temp);
+        
+            var tmp = controller.FinalPosition;
+            controller.MoveToPosition(stackPosition);
+            stackPosition = tmp;
         }
 
-        var tmp = source.BufferPositon;
+      //  _rayCasted = controllers;
+
         source.BufferPositon = target.BufferPositon;
-        target.MoveToPosition(tmp);
+
+
+        //var tmp = source.BufferPositon;
+        //source.BufferPositon = target.BufferPositon;
+        //target.MoveToPosition(tmp);
+    }
+
+    public void CleanPositions()
+    {
+        //foreach (var unit in Units.Values)
+        //{
+        //    unit.GetComponent<Collider2D>().enabled = false;
+        //}
+        //HorizontalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+        //VerticalUnits.ForEach(g => g.GetComponent<BallController>().SetBufferToFinalPosition());
+        //foreach (var unit in Units.Values)
+        //{
+        //    unit.GetComponent<Collider2D>().enabled = true;
+        //}
     }
 }
+
