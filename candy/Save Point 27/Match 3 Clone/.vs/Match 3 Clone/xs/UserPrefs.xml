@@ -1,0 +1,21 @@
+﻿<Properties StartupConfiguration="{325B507C-967A-FD8C-1F0C-D8FE0FC685D1}|">
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/BackgroundTile.cs">
+    <Files>
+      <File FileName="Assets/Scripts/Dot.cs" Line="248" Column="10" />
+      <File FileName="Assets/Scripts/FindMatches.cs" Line="145" Column="64" />
+      <File FileName="Assets/Scripts/Board.cs" Line="216" Column="45" />
+      <File FileName="Assets/Scripts/DestroyParticle.cs" Line="18" Column="36" />
+      <File FileName="Assets/Scripts/CameraScalar.cs" Line="27" Column="71" />
+      <File FileName="Assets/Scripts/BackgroundTile.cs" Line="8" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Match_2203_220Clone PreferredExecutionTarget="Unity.Editor" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.com.unity.package-manager-ui.Editor PreferredExecutionTarget="Unity.Editor" />
+  <MultiItemStartupConfigurations />
+</Properties>
