@@ -13,7 +13,7 @@ public class BallController : MonoBehaviour
     public float MainScrollSpeed;
     public float UnitReturnSpeed;
     public float SwapSpeed;
-
+    
     public GameManager GameManager;
 
     private Transform _transform;
