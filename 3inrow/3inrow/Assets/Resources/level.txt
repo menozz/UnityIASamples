@@ -1,0 +1,8 @@
+﻿ blue_B |green|orange_B|pink|blue|green|orange|pink
+blue|green|orange|pink|blue|green|orange|pink
+blue|green|orange|pink|blue|green|orange|pink
+blue|green|orange|pink|blue|green|orange|pink
+blue|green|orange|pink |blue|green|orange|pink
+blue|green|orange|pink|blue|green|orange|pink
+blue|green|orange|pink|blue|green|orange|pink
+blue |green|orange|pink|blue|green|orange|pink
