@@ -54,8 +54,13 @@ public class GameManager : MonoBehaviour
     public ShapesArray shapes;
     private Vector2[] SpawnPositions;
 
+    private GameObject hitGo = null;
+
     public readonly Vector2 BottomRight = new Vector2(0f, 0f);
     public readonly Vector2 ShapeSize = new Vector2(0.7f, 0.7f);
+
+    private GameState state = GameState.None;
+
 
     //private IEnumerator CheckPotentialMatchesCoroutine;
     //private IEnumerator AnimatePotentialMatchesCoroutine;
@@ -66,7 +71,7 @@ public class GameManager : MonoBehaviour
     {
         InitializeTypesOnPrefabShapes();
         InitializeShapeSpawnPositions();
-       // StartCheckForPotentialMatches();
+        // StartCheckForPotentialMatches();
     }
 
     //private void StartCheckForPotentialMatches()
@@ -110,7 +115,7 @@ public class GameManager : MonoBehaviour
 
     public void InitializeShapeSpawnPositions()
     {
-      //  var premadeLevel = DebugUtilities.FillShapesArrayFromResourcesData();
+        //  var premadeLevel = DebugUtilities.FillShapesArrayFromResourcesData();
 
         if (shapes != null)
             DestroyAllCandy();
@@ -124,7 +129,7 @@ public class GameManager : MonoBehaviour
             {
                 var shapePrefab = GetRandomShapePrefab();
 
-                while (column >= 2 && shapes[row, column - 1].GetComponent<Shape>().IsSameType(shapePrefab.GetComponent<Shape>()) 
+                while (column >= 2 && shapes[row, column - 1].GetComponent<Shape>().IsSameType(shapePrefab.GetComponent<Shape>())
                                    && shapes[row, column - 2].GetComponent<Shape>().IsSameType(shapePrefab.GetComponent<Shape>()))
                 {
                     shapePrefab = GetRandomShapePrefab();
@@ -154,7 +159,7 @@ public class GameManager : MonoBehaviour
     private void InstantiateAndPlaceNewShapeInstance(int row, int column, GameObject shapePrefab)
     {
         var shapeInstance = Instantiate(
-            shapePrefab, 
+            shapePrefab,
             BottomRight + new Vector2(column * ShapeSize.x, row * ShapeSize.y), Quaternion.identity);
         shapeInstance.GetComponent<Shape>().Assign(shapePrefab.GetComponent<Shape>().Type, row, column);
         shapes[row, column] = shapeInstance;
@@ -176,6 +181,218 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (state == GameState.None)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                if (hit.collider != null)
+                {
+                    hitGo = hit.collider.gameObject;
+                    state = GameState.SelectionStarted;
+                }
+            }
+        }
+        else if (state == GameState.SelectionStarted)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                if (hit.collider != null && this.hitGo != hit.collider.gameObject)
+                {
+                    if (!Utilities.AreVerticalOrHorizontalNeighbors(
+                            hitGo.GetComponent<Shape>(),
+                            hit.collider.gameObject.GetComponent<Shape>()))
+                    {
+                        state = GameState.None;
+                    }
+                    else
+                    {
+                        state = GameState.Animating;
+                        FixSortingLayer(hitGo, hit.collider.gameObject);
+                        StartCoroutine(FindMatchesAndCollapse(hit));
+                    }
+                }
+            }
+        }
+    }
+
+
+    private IEnumerator FindMatchesAndCollapse(RaycastHit2D hit2)
+    {
+        //get the second item that was part of the swipe
+        var hitGo2 = hit2.collider.gameObject;
+        shapes.Swap(hitGo, hitGo2);
+
+        //move the swapped onesm
+        hitGo.transform.positionTo(Constants.AnimationDuration, hitGo2.transform.position);
+        hitGo2.transform.positionTo(Constants.AnimationDuration, hitGo.transform.position);
+        //hitGo.transform.positionTo(Constants.AnimationDuration, hitGo2.transform.position);
+        //hitGo2.transform.positionTo(Constants.AnimationDuration, hitGo.transform.position);
+        yield return new WaitForSeconds(Constants.AnimationDuration);
+
+        //get the matches via the helper methods
+        var hitGomatchesInfo = shapes.GetMatches(hitGo);
+        var hitGo2matchesInfo = shapes.GetMatches(hitGo2);
+
+        var totalMatches = hitGomatchesInfo.MatchedCandy
+            .Union(hitGo2matchesInfo.MatchedCandy).Distinct();
+
+        //if user's swap didn't create at least a 3-match, undo their swap
+        if (totalMatches.Count() < Constants.MinimumMatches)
+        {
+            hitGo.transform.positionTo(Constants.AnimationDuration, hitGo2.transform.position);
+            hitGo2.transform.positionTo(Constants.AnimationDuration, hitGo.transform.position);
+            yield return new WaitForSeconds(Constants.AnimationDuration);
+
+            shapes.UndoSwap();
+        }
+
+        //if more than 3 matches and no Bonus is contained in the line, we will award a new Bonus
+        bool addBonus = totalMatches.Count() >= Constants.MinimumMatchesForBonus &&
+            !BonusTypeUtilities.ContainsDestroyWholeRowColumn(hitGomatchesInfo.BonusesContained) &&
+            !BonusTypeUtilities.ContainsDestroyWholeRowColumn(hitGo2matchesInfo.BonusesContained);
+
+        Shape hitGoCache = null;
+        if (addBonus)
+        {
+            //get the game object that was of the same type
+            var sameTypeGo = hitGomatchesInfo.MatchedCandy.Count() > 0 ? hitGo : hitGo2;
+            hitGoCache = sameTypeGo.GetComponent<Shape>();
+        }
+
+        int timesRun = 1;
+        while (totalMatches.Count() >= Constants.MinimumMatches)
+        {
+            //increase score
+            //   IncreaseScore((totalMatches.Count() - 2) * Constants.Match3Score);
+
+            //if (timesRun >= 2)
+            //     IncreaseScore(Constants.SubsequentMatchScore);
+
+            foreach (var item in totalMatches)
+            {
+                shapes.Remove(item);
+                RemoveFromScene(item);
+            }
+
+            //check and instantiate Bonus if needed
+            if (addBonus)
+                CreateBonus(hitGoCache);
+
+            addBonus = false;
+
+            //get the columns that we had a collapse
+            var columns = totalMatches.Select(go => go.GetComponent<Shape>().Column).Distinct();
+
+            //the order the 2 methods below get called is important!!!
+            //collapse the ones gone
+            var collapsedCandyInfo = shapes.Collapse(columns);
+            //create new ones
+            var newCandyInfo = CreateNewCandyInSpecificColumns(columns);
+
+            int maxDistance = Mathf.Max(collapsedCandyInfo.MaxDistance, newCandyInfo.MaxDistance);
+
+            MoveAndAnimate(newCandyInfo.AlteredCandy, maxDistance);
+            MoveAndAnimate(collapsedCandyInfo.AlteredCandy, maxDistance);
+
+
+
+            //will wait for both of the above animations
+            yield return new WaitForSeconds(Constants.MoveAnimationMinDuration * maxDistance);
+
+            //search if there are matches with the new/collapsed items
+            totalMatches = shapes.GetMatches(collapsedCandyInfo.AlteredCandy).
+                Union(shapes.GetMatches(newCandyInfo.AlteredCandy)).Distinct();
+
+            timesRun++;
+        }
+
+        state = GameState.None;
+    }
+
+    private void RemoveFromScene(GameObject item)
+    {
+        //GameObject explosion = GetRandomExplosion();
+        //var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
+        //Destroy(newExplosion, Constants.ExplosionDuration);
+        Destroy(item);
+    }
+
+    private void CreateBonus(Shape hitGoCache)
+    {
+        GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type), BottomRight
+                                                                          + new Vector2(hitGoCache.Column * this.ShapeSize.x,
+                                                                              hitGoCache.Row * this.ShapeSize.y), Quaternion.identity)
+                               as GameObject;
+        shapes[hitGoCache.Row, hitGoCache.Column] = Bonus;
+        var BonusShape = Bonus.GetComponent<Shape>();
+        //will have the same type as the "normal" candy
+        BonusShape.Assign(hitGoCache.Type, hitGoCache.Row, hitGoCache.Column);
+        //add the proper Bonus type
+        BonusShape.Bonus |= BonusType.DestroyWholeRowColumn;
+    }
+
+    private GameObject GetBonusFromType(string type)
+    {
+        string color = type.Split('_')[1].Trim();
+        foreach (var item in this.ShapePrefabs)
+        {
+            if (item.GetComponent<Shape>().Type.Contains(color))
+                return item;
+        }
+
+        throw new System.Exception("Wrong type");
+    }
+
+    private void MoveAndAnimate(IEnumerable<GameObject> movedGameObjects, int distance)
+    {
+        foreach (var item in movedGameObjects)
+        {
+            item.transform.positionTo(
+                Constants.MoveAnimationMinDuration * distance,
+                BottomRight + new Vector2(item.GetComponent<Shape>().Column * ShapeSize.x, item.GetComponent<Shape>().Row * ShapeSize.y));
+        }
+    }
+
+    private void FixSortingLayer(GameObject hitGo, GameObject hitGo2)
+    {
+        SpriteRenderer sp1 = hitGo.GetComponent<SpriteRenderer>();
+        SpriteRenderer sp2 = hitGo2.GetComponent<SpriteRenderer>();
+        if (sp1.sortingOrder <= sp2.sortingOrder)
+        {
+            sp1.sortingOrder = 1;
+            sp2.sortingOrder = 0;
+        }
+    }
+
+    private AlteredCandyInfo CreateNewCandyInSpecificColumns(IEnumerable<int> columnsWithMissingCandy)
+    {
+        AlteredCandyInfo newCandyInfo = new AlteredCandyInfo();
+
+        //find how many null values the column has
+        foreach (int column in columnsWithMissingCandy)
+        {
+            var emptyItems = shapes.GetEmptyItemsOnColumn(column);
+            foreach (var item in emptyItems)
+            {
+                var go = this.GetRandomShapePrefab();
+                GameObject newCandy = Instantiate(go, SpawnPositions[column], Quaternion.identity)
+                                          as GameObject;
+
+                newCandy.GetComponent<Shape>().Assign(go.GetComponent<Shape>().Type, item.Row, item.Column);
+
+                if (Constants.Rows - item.Row > newCandyInfo.MaxDistance)
+                    newCandyInfo.MaxDistance = Constants.Rows - item.Row;
+
+                shapes[item.Row, item.Column] = newCandy;
+                newCandyInfo.AddCandy(newCandy);
+            }
+        }
+        return newCandyInfo;
+    }
 
     //void Start()
     //{
@@ -187,34 +404,29 @@ public class GameManager : MonoBehaviour
     //    shagLabel.GetComponent<Text>().text = shags + "";
     //}
 
-    void FixedUpdate()
-    {
+    //void Update()
+    //{
+    //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
+    //{
+    //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+    //    if (hit.collider != null)
+    //    {
+    //        gameNormal(hit);
+    //    }
+    //}
 
-    }
+    //if (Input.GetMouseButtonDown(0))
+    //{
+    //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+    //    if (hit.collider != null)
+    //    {
+    //        srchit = hit.collider;
+    //    }
+    //}
 
-    void Update()
-    {
-        //if (Input.GetMouseButtonUp(0) && Time.time > nextUsage)
-        //{
-        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-        //    if (hit.collider != null)
-        //    {
-        //        gameNormal(hit);
-        //    }
-        //}
-
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    var hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-        //    if (hit.collider != null)
-        //    {
-        //        srchit = hit.collider;
-        //    }
-        //}
-
-    }
+    // }
 
     //void gameNormal(RaycastHit2D hit)
     //{
@@ -335,18 +547,18 @@ public class GameManager : MonoBehaviour
     //        }
 
     //    }
-        //float x = 0f, y = this.startY + 1;
-        //for (int i = 0; i < 8; i++)
-        //    for (int j = 0; j < 8; j++)
-        //    {
-        //        Vector2 worldPoint = new Vector2(x + i, y + j);
-        //        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-        //        if (hit.collider == null)
-        //        {
-        //            setRNDCircle(x + i, y + j);
-        //        }
-        //    }
-   // }
+    //float x = 0f, y = this.startY + 1;
+    //for (int i = 0; i < 8; i++)
+    //    for (int j = 0; j < 8; j++)
+    //    {
+    //        Vector2 worldPoint = new Vector2(x + i, y + j);
+    //        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
+    //        if (hit.collider == null)
+    //        {
+    //            setRNDCircle(x + i, y + j);
+    //        }
+    //    }
+    // }
 
 
     //void respawnNewCircles(Vector2 hitObj)
@@ -475,10 +687,10 @@ public class GameManager : MonoBehaviour
     //    }
     //}
 
-    //public void MakeVertHorz(Vector3 finalPosition)
+    //public void MakeVertHorz(Vector3 target)
     //{
-    //    VerticalUnits = Units.Values.Where(g => g.transform.position.x == finalPosition.x).ToList();
-    //    HorizontalUnits = Units.Values.Where(g => g.transform.position.y == finalPosition.y).ToList();
+    //    VerticalUnits = Units.Values.Where(g => g.transform.position.x == target.x).ToList();
+    //    HorizontalUnits = Units.Values.Where(g => g.transform.position.y == target.y).ToList();
     //}
 
     //public void SwapBufferPosition(BallController source, BallController target)
@@ -510,7 +722,7 @@ public class GameManager : MonoBehaviour
     //    var stackPosition = source.FinalPosition;
     //    foreach (var controller in controllers)
     //    {
-        
+
     //        var tmp = controller.FinalPosition;
     //        controller.MoveToPosition(stackPosition);
     //        stackPosition = tmp;
@@ -539,5 +751,28 @@ public class GameManager : MonoBehaviour
     //        unit.GetComponent<BallController>().IsMoving = true;
     //    }
     //}
+
+
 }
+
+//public static class Ext
+//{
+//    //public static void positionTo(this Transform transform, float speed, Vector3 target)
+//    //{
+//    //    float step = speed * Time.deltaTime;
+//    //    transform.position = Vector3.MoveTowards(transform.position, target, step);
+//    //}
+
+//    public static IEnumerator positionTo(this Transform transform, float speed, Vector3 target)
+//    {
+//        float sqrRemainingDistance = (transform.position - target).sqrMagnitude;
+//        while (sqrRemainingDistance > float.Epsilon)
+//        {
+//            Vector2 towards = Vector2.MoveTowards(transform.position, target, speed * Time.deltaTime);
+//            transform.position = towards;
+//            sqrRemainingDistance = (transform.position - target).sqrMagnitude;
+//            yield return null;
+//        }
+//    }
+//}
 

@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3inrow", "Assembly-CSharp-firstpass.csproj", "{7D9F6DEB-5D78-D79C-7FFA-C0A8B1C44784}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3inrow", "Assembly-CSharp.csproj", "{46E1E842-84A2-29F8-08D2-7FD67D2395D6}"
 EndProject
 Global
@@ -9,6 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7D9F6DEB-5D78-D79C-7FFA-C0A8B1C44784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D9F6DEB-5D78-D79C-7FFA-C0A8B1C44784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D9F6DEB-5D78-D79C-7FFA-C0A8B1C44784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D9F6DEB-5D78-D79C-7FFA-C0A8B1C44784}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46E1E842-84A2-29F8-08D2-7FD67D2395D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46E1E842-84A2-29F8-08D2-7FD67D2395D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46E1E842-84A2-29F8-08D2-7FD67D2395D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
